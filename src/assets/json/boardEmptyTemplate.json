@@ -1,0 +1,9 @@
+{
+"id": "1", 
+"name": "default", 
+"columnsData": [
+    { "id": 1, "title": "To Do", "items": []},
+    { "id": 2, "title": "In Progress", "items": []},
+    { "id": 3, "title": "Done", "items": []}
+    ]
+}

@@ -1,0 +1,40 @@
+  /*LIGHT THEME*/
+:root,
+:root[color-scheme="light"] {
+  --accent: #4B88FF;
+  --accentSecondary: #EBF2FF;
+  --accentThird: #357edd;
+  --accentContent: #FFFFFF;
+  --background: #F8F8FB;
+  --primary: #FFFFFF;
+  --text: #343434;
+  --darkText: #3E3E3E;
+  --disabled: #9B9B9B;
+  --input: #E8EAEF;
+  --inputBackground: #F8F8FB;
+
+  --errorColor: #F04438;
+  --warningColor: #FFC700;
+  --successColor: #17B26A;
+  --dark: #000000;
+  --white: #FFFFFF;
+
+  color-scheme: light;
+}
+
+  /*DARK THEME*/
+:root[color-scheme="dark"] {
+  --accent: #FFE600;
+  --accentThird: #FFD700;
+  --accentSecondary: #524B09;
+  --accentContent: #030303;
+  --background: #141312;
+  --primary: #1F1F20;
+  --text: #FFFFFF;
+  --darkText: #A0A0A0;
+  --disabled: #7C7C7C;
+  --input: #363636;
+  --inputBackground: #323232;
+
+  color-scheme: dark;
+}
