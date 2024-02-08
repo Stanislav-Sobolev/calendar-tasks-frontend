@@ -39,9 +39,9 @@ export const deleteBoard = async (boardId, failCallback) => {
   }
 };
 
-export const createCard = async (boardId, columnId, cardData, failCallback) => {
+export const createCard = async (boardId, cellId, cardData, failCallback) => {
   try {
-    const res = await axios.post(`/card/${boardId}/${columnId}`, cardData);
+    const res = await axios.post(`/card/${boardId}/${cellId}`, cardData);
     const boardData = res.data;
       
     return boardData;
@@ -50,9 +50,9 @@ export const createCard = async (boardId, columnId, cardData, failCallback) => {
   }
 };
 
-export const updateCard = async (boardId, columnId, cardId, updatedData, failCallback) => {
+export const updateCard = async (boardId, cellId, cardId, updatedData, failCallback) => {
   try {
-    const res = await axios.put(`/card/${boardId}/${columnId}/${cardId}`, updatedData);
+    const res = await axios.put(`/card/${boardId}/${cellId}/${cardId}`, updatedData);
     const boardData = res.data;
       
     return boardData;
@@ -63,14 +63,14 @@ export const updateCard = async (boardId, columnId, cardId, updatedData, failCal
 
 export const dndCard = async (
     boardId, 
-    columnId, 
+    cellId, 
     cardId,
-    toColumnId, 
+    toCellId, 
     toCardIndexId,
     failCallback
     ) => {
       try {
-        const res = await axios.patch(`/card/${boardId}/${columnId}/${cardId}/${toColumnId}/${toCardIndexId}`);
+        const res = await axios.patch(`/card/${boardId}/${cellId}/${cardId}/${toCellId}/${toCardIndexId}`);
         const boardData = res.data;
         
         return boardData;
@@ -79,9 +79,9 @@ export const dndCard = async (
       }
 };
 
-export const deleteCard = async (boardId, columnId, cardId, failCallback) => {
+export const deleteCard = async (boardId, cellId, cardId, failCallback) => {
   try {
-    const res = await axios.delete(`/card/${boardId}/${columnId}/${cardId}`);
+    const res = await axios.delete(`/card/${boardId}/${cellId}/${cardId}`);
     const boardData = res.data;
     
     return boardData;

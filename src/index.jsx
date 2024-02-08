@@ -9,6 +9,8 @@ const root = ReactDOM.createRoot(
 );
 
 root.render(
-  <Calendar />
-  // <App/>
+  <>
+    <Calendar />
+    <App/>
+  </>
 );

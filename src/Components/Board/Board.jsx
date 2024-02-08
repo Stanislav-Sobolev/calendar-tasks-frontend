@@ -9,42 +9,42 @@ import { createCard, dndCard } from '../../helpers/fetchers';
 import { Ok, Cross } from '../Icons';
 
 export const Board = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
-  const { id: boardId, columnsData } = boardData;
+  const { id: boardId, cellsData } = boardData;
 
-  const [columns, setColumns] = useState(null);
-  const [currentColumn, setCurrentColumn] = useState(null);
+  const [cells, setCells] = useState(null);
+  const [currentCell, setCurrentCell] = useState(null);
   const [currentCard, setCurrentCard] = useState(null);
   const [hoveredCard, setHoveredCard] = useState(null);
-  const [activeColumn, setActiveColumn] = useState(null);
+  const [activeCell, setActiveCell] = useState(null);
   const [isShowModal, setIsShowModal] = useState(false);
   const [description, setDescription] = useState('');
   const [title, setTitle] = useState('');
 
   useEffect(() => {
-    setColumns(columnsData);
-  }, [columnsData]);
+    setCells(cellsData);
+  }, [cellsData]);
   
   const dragOverHandler = (e) => {
     e.preventDefault();
   };
 
-  const dropCardHandler = async (e, column) => {
+  const dropCardHandler = async (e, cell) => {
     e.preventDefault();
     
-    if (currentCard && currentColumn && columns && hoveredCard) {
-      const dropIndex = column.items.indexOf(hoveredCard);
+    if (currentCard && currentCell && cells && hoveredCard) {
+      const dropIndex = cell.items.indexOf(hoveredCard);
       
       setBoardData((board) => {
         if (board) {
           
-          const columnFrom = board.columnsData.find((col) => col.id === currentColumn.id);
-          const columnTo = board.columnsData.find((col) => col.id === column.id);
+          const cellFrom = board.cellsData.find((col) => col.id === currentCell.id);
+          const cellTo = board.cellsData.find((col) => col.id === cell.id);
           
-          if (columnFrom && columnTo) {
-            const currentCardIndex = columnFrom.items.indexOf(currentCard);
-            columnFrom.items.splice(currentCardIndex, 1);
+          if (cellFrom && cellTo) {
+            const currentCardIndex = cellFrom.items.indexOf(currentCard);
+            cellFrom.items.splice(currentCardIndex, 1);
 
-            columnTo.items.splice(dropIndex + 1, 0, currentCard);
+            cellTo.items.splice(dropIndex + 1, 0, currentCard);
             
             return {...board};
           }
@@ -53,15 +53,15 @@ export const Board = ({boardData, nameBoard, failFetchCallback, setBoardData}) =
       });
 
       
-      dndCard(boardId, currentColumn.id, currentCard.id, column.id, dropIndex + 1, failFetchCallback);
+      dndCard(boardId, currentCell.id, currentCard.id, cell.id, dropIndex + 1, failFetchCallback);
     }
 
     const target = e.target;
     target.style.boxShadow = 'none';
   };
 
-  const addCardHandler = (column) => {
-    setActiveColumn(column);
+  const addCardHandler = (cell) => {
+    setActiveCell(cell);
     setIsShowModal(true);
   }
 
@@ -69,20 +69,20 @@ export const Board = ({boardData, nameBoard, failFetchCallback, setBoardData}) =
     setTitle('');
     setDescription('');
     setIsShowModal(false);
-    setActiveColumn(null);
+    setActiveCell(null);
   }
 
   const saveUpdateHandler = () => {
     const createdCard = { ...cardEmptyTemplate, id: Date.now(), title, description };
 
-    if (activeColumn && title && description) {
+    if (activeCell && title && description) {
       setBoardData((board) => {
         if (board) {
           
-          const foundColumn = board.columnsData.find((col) => col.id === activeColumn.id);
+          const foundCell = board.cellsData.find((col) => col.id === activeCell.id);
           
-          if (foundColumn) {
-            foundColumn.items.push(createdCard);
+          if (foundCell) {
+            foundCell.items.push(createdCard);
             
             return {...board};
           }
@@ -90,7 +90,7 @@ export const Board = ({boardData, nameBoard, failFetchCallback, setBoardData}) =
         return board;
       });
   
-      createCard(boardId, activeColumn.id, createdCard, failFetchCallback);
+      createCard(boardId, activeCell.id, createdCard, failFetchCallback);
       cancelHandler();
     } else {
       toast.error('Please, fill Title, Description');
@@ -132,34 +132,34 @@ export const Board = ({boardData, nameBoard, failFetchCallback, setBoardData}) =
     <div className={styles.board}>
       <h1 className={styles.boardName}>{nameBoard}</h1>
       { isShowModal ? renderModal() : null}
-      <div className={styles.columns}>
-        {columns && columns.map(column => 
-          <div key={column.id} className={styles.columnWrapper}>
-            <h2 className={styles.columnTitle}>{column.title}</h2>
+      <div className={styles.cells}>
+        {cells && cells.map(cell => 
+          <div key={cell.id} className={styles.cellWrapper}>
+            <h2 className={styles.cellTitle}>{cell.title}</h2>
             <div 
-              key={column.id}
-              className={styles.column}
+              key={cell.id}
+              className={styles.cell}
               onDragOver={(e) => dragOverHandler(e)}
-              onDrop={(e) => dropCardHandler(e, column)}
+              onDrop={(e) => dropCardHandler(e, cell)}
             >
               
-              {column.items.map(item => (
+              {cell.items.map(item => (
                 <Card 
                   key={item.id}
                   card={item} 
-                  column={column}
+                  cell={cell}
                   boardId={boardId}
                   failFetchCallback={failFetchCallback}
-                  setCurrentColumn={setCurrentColumn}
+                  setCurrentCell={setCurrentCell}
                   setCurrentCard={setCurrentCard}
                   setHoveredCard={setHoveredCard}
-                  setColumns={setColumns}
+                  setCells={setCells}
                   setBoardData={setBoardData}
                 />
               ))}
               <div 
                 className={styles.plusWrapper}
-                onClick={() => addCardHandler(column)}
+                onClick={() => addCardHandler(cell)}
               >
                 <Plus className={styles.plusIcon}/>
               </div>

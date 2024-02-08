@@ -7,9 +7,9 @@ import { deleteCard, updateCard } from '../../helpers/fetchers';
 
 import styles from './Card.module.scss';
 
-export const Card = ({ card, column, boardId, failFetchCallback, setCurrentColumn, setCurrentCard, setHoveredCard, setColumns, setBoardData }) => {
+export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, setCurrentCard, setHoveredCard, setCells, setBoardData }) => {
   const { id: cardId } = card;
-  const { id: columnId } = column;
+  const { id: cellId } = cell;
 
   const [title, setTitle] = useState(card.title);
   const [originalTitle, setOriginalTitle] = useState(card.title);
@@ -20,8 +20,8 @@ export const Card = ({ card, column, boardId, failFetchCallback, setCurrentColum
   const classNamesToStyle = [styles.card, styles.cardDescription, styles.cardTitle, styles.iconWrapper, styles.editIcon, styles.deleteIcon];
   const elementById = document.getElementById(`${cardId}`);
 
-  const dragStartHandler = (column) => {
-    setCurrentColumn(column);
+  const dragStartHandler = (cell) => {
+    setCurrentCell(cell);
     setCurrentCard(card);
   }
 
@@ -64,13 +64,13 @@ export const Card = ({ card, column, boardId, failFetchCallback, setCurrentColum
       setBoardData(board => {
         if (board) {
           
-          const column = board.columnsData.find((col) => col.id === columnId);
+          const cell = board.cellsData.find((col) => col.id === cellId);
           
-          if (column) {
-            const cardIndex = column.items.findIndex((c) => c.id === cardId);
+          if (cell) {
+            const cardIndex = cell.items.findIndex((c) => c.id === cardId);
   
             if (cardIndex !== -1) {
-              column.items[cardIndex] = { title, description };
+              cell.items[cardIndex] = { title, description };
               return {...board};
             }
           }
@@ -78,7 +78,7 @@ export const Card = ({ card, column, boardId, failFetchCallback, setCurrentColum
         return board;
       });
   
-      updateCard(boardId, columnId, cardId, {id: cardId, title, description}, failFetchCallback);
+      updateCard(boardId, cellId, cardId, {id: cardId, title, description}, failFetchCallback);
   
       setEditing(false);
     } else {
@@ -96,13 +96,13 @@ export const Card = ({ card, column, boardId, failFetchCallback, setCurrentColum
     setBoardData((board) => {
       if (board) {
         
-        const column = board.columnsData.find((col) => col.id === columnId);
+        const cell = board.cellsData.find((col) => col.id === cellId);
         
-        if (column) {
-          const cardIndex = column.items.findIndex((c) => c.id === cardId);
+        if (cell) {
+          const cardIndex = cell.items.findIndex((c) => c.id === cardId);
 
           if (cardIndex !== -1) {
-            column.items.splice(cardIndex, 1);
+            cell.items.splice(cardIndex, 1);
             return {...board};
           }
         }
@@ -110,7 +110,7 @@ export const Card = ({ card, column, boardId, failFetchCallback, setCurrentColum
       return board;
     });
 
-    deleteCard(boardId, columnId, cardId, failFetchCallback);
+    deleteCard(boardId, cellId, cardId, failFetchCallback);
   }
 
   const renderContent = () => isEditing ? (
@@ -160,7 +160,7 @@ export const Card = ({ card, column, boardId, failFetchCallback, setCurrentColum
       id={`${cardId}`}
       className={styles.card}
       draggable={!isEditing}
-      onDragStart={() => dragStartHandler(column)}
+      onDragStart={() => dragStartHandler(cell)}
       onDragLeave={(e) => dragLeaveHandler(e)}
       onDragEnd={(e) => dragLeaveHandler(e)}
       onDragOver={(e) => dragOverHandler(e)}

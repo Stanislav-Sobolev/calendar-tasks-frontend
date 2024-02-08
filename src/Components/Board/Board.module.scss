@@ -23,12 +23,12 @@
   width: 250px;
 }
 
-.columns {
+.cells {
   display: flex;
   margin-top: 10px;
 }
 
-.columnWrapper {
+.cellWrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -56,7 +56,7 @@
   stroke: var(--successColor);
 }
 
-.column {
+.cell {
   width: 300px;
   min-height: 400px;
   border: 2px solid var(--darkText);
@@ -68,7 +68,7 @@
   flex-direction: column;
 }
 
-.columnTitle {
+.cellTitle {
   color: var(--darkText);
   font-size: 1.5rem;
   font-weight: 700;
