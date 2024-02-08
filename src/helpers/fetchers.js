@@ -1,7 +1,7 @@
 import axios from "axios"
 
-axios.defaults.baseURL = 'https://tasks-calendar-backend.onrender.com';
-// axios.defaults.baseURL = 'https://16.171.241.225:4000';
+// axios.defaults.baseURL = 'https://dnd-te37.onrender.com';
+axios.defaults.baseURL = 'http://localhost:4000/';
 
 export const getBoardById = async (boardId) => {
     const res = await axios.get(`/board/${boardId}`);

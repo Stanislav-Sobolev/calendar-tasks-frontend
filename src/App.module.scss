@@ -15,8 +15,7 @@
 
 .searchPanel {
   display: flex;
-  align-items: center;
-  padding: 10px;
+padding: 10px;
 }
 
 .input {
@@ -77,12 +76,13 @@
   display: flex;
   align-items: center;
   font-size: 16px;
-  height: 42px;
+  height: 40px;
   color: var(--errorColor);
 }
 
 .iconWrapper {
   display: flex;
+  gap: 8px;
   margin-left: 8px;
   align-items: center;
 }
