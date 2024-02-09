@@ -10,35 +10,6 @@ export const getBoardById = async (boardId) => {
     return boardData;
 };
 
-export const createBoard = async (boardData) => {
-    const res = await axios.post('/board', boardData);
-    const board = res.data;
-    
-    return board;    
-};
-
-export const updateBoardName = async (boardId, name, failCallback) => {
-  try {
-    const res = await axios.put(`/board/${boardId}`, {name});
-    const boardData = res.data;
-    
-    return boardData;
-  } catch (error) {
-    failCallback && failCallback();
-  }
-};
-
-export const deleteBoard = async (boardId, failCallback) => {
-  try {
-    const res = await axios.delete(`/board/${boardId}`);
-    const boardData = res.data;
-    
-    return boardData;
-  } catch (error) {
-    failCallback && failCallback();
-  }
-};
-
 export const createCard = async (boardId, cellId, cardData, failCallback) => {
   try {
     const res = await axios.post(`/card/${boardId}/${cellId}`, cardData);
