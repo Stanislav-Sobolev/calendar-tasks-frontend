@@ -1,13 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 
-import Moment from 'react-moment';
 import { Edit, Delete, Ok, Cross } from '../Icons';
 import { deleteCard, updateCard } from '../../helpers/fetchers';
 
 import styles from './Card.module.scss';
 
-export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, setCurrentCard, setHoveredCard, setCells, setBoardData }) => {
+export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, setCurrentCard, setHoveredCard, setBoardData }) => {
   const { id: cardId } = card;
   const { id: cellId } = cell;
 
@@ -18,38 +17,36 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
   const [isEditing, setEditing] = useState(false);
 
   const classNamesToStyle = [styles.card, styles.cardDescription, styles.cardTitle, styles.iconWrapper, styles.editIcon, styles.deleteIcon];
-  const elementById = document.getElementById(`${cardId}`);
+  const elementRef = useRef(null);
 
   const dragStartHandler = (cell) => {
     setCurrentCell(cell);
     setCurrentCard(card);
   }
 
-  const dragLeaveHandler = (e) => {
-    const target = e.target;
-    
-    if (classNamesToStyle.includes(target.className) && elementById) {
-      elementById.style.boxShadow = 'none';
+  const dragLeaveHandler = () => {
+    if (elementRef.current) {
+      elementRef.current.style.boxShadow = 'none';
     }
   };
-  
 
   const dragOverHandler = (e) => {
     e.preventDefault();
     const target = e.target;
-    
-    if (classNamesToStyle.includes(target.className) && elementById) {
+
+    // console.log("elementRef", elementRef.current);
+    // console.log("classNamesToStyle.includes(target.className)", classNamesToStyle.includes(target.className));
+
+    if (classNamesToStyle.includes(target.className) && elementRef.current) {
+      console.log('!!!!!!555555555555555555', card)
       setHoveredCard(card);
-      elementById.style.boxShadow = '0 5px 5px rgba(0, 0, 0, 0.2)';
+      elementRef.current.style.boxShadow = '0 5px 5px rgba(0, 0, 0, 0.2)';
     }
   }
 
-  const dropHandler = (e) => {
-    e.preventDefault();
-    const target = e.target;
-
-    if (classNamesToStyle.includes(target.className) && elementById) {
-      elementById.style.boxShadow = 'none';
+  const dropHandler = () => {
+    if (elementRef.current) {
+      elementRef.current.style.boxShadow = 'none';
     }
   }
 
@@ -156,17 +153,17 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
   );
 
   return (
-    <div
-      id={`${cardId}`}
+    <li
+      ref={elementRef}
       className={styles.card}
       draggable={!isEditing}
       onDragStart={() => dragStartHandler(cell)}
-      onDragLeave={(e) => dragLeaveHandler(e)}
-      onDragEnd={(e) => dragLeaveHandler(e)}
-      onDragOver={(e) => dragOverHandler(e)}
-      onDrop={(e) => dropHandler(e)}
+      onDragLeave={dragLeaveHandler}
+      onDragEnd={dragLeaveHandler}
+      onDragOver={dragOverHandler}
+      onDrop={dropHandler}
     >
       {renderContent()}
-    </div>
+    </li>
   );
 };

@@ -2,24 +2,22 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import DayCell from '../DayCell/DayCell';
-
 import { toast } from 'react-toastify';
-import { Card } from '../Card/Card';
 import cardEmptyTemplate from '../../assets/json/cardEmptyTemplate.json';
 import styles from '../Board/Board.module.scss';
-import { Plus } from '../Icons';
 import { createCard, dndCard } from '../../helpers/fetchers';
 import { Ok, Cross } from '../Icons';
 
 const CalendarContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(7, 180px);
+  grid-template-columns: repeat(7, 190px);
 `;
 
 const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
   const { id: boardId, cellsData } = boardData;
 
   const [cells, setCells] = useState(null);
+  const [days, setDays] = useState([]);
   const [currentCell, setCurrentCell] = useState(null);
   const [currentCard, setCurrentCard] = useState(null);
   const [hoveredCard, setHoveredCard] = useState(null);
@@ -33,27 +31,86 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
     setCells(cellsData);
   }, [cellsData]);
 
+  useEffect(() => {
+    if (cells) {
+      const startOfMonth = moment(selectedDate).startOf('month');
+      const endOfMonth = moment(selectedDate).endOf('month');
+      const startDate = moment(startOfMonth).startOf('week');
+      const endDate = moment(endOfMonth).endOf('week');
+
+      const countedDays = [];
+      let currentDate = startDate;
+      
+      const cellsRange = cells.filter(el => (el.id >= startDate.valueOf()) && (el.id <= endDate.valueOf()))
+          // console.log("currentCard22", currentCard)
+          // console.log("currentCell22", currentCell)
+          // console.log("cells22", cells)
+          // console.log("hoveredCard22", hoveredCard)
+
+      while (currentDate.isSameOrBefore(endDate)) {
+        const isOutsideMonth = !currentDate.isBetween(startOfMonth, endOfMonth, null, '[]');
+        const currentCell = cellsRange.find(el => moment(el.id).format('YMD') === currentDate.format('YMD'));
+
+        countedDays.push(
+          <DayCell
+            key={currentDate.format('YYYY-MM-DD')}
+            day={currentDate.format('D')}
+            cellId={currentDate.valueOf()}
+            $isOutsideMonth={isOutsideMonth}
+            boardId={boardId}
+            currentCell={currentCell}
+            dragOverHandler={dragOverHandler}
+            dropCardHandler={dropCardHandler}
+            failFetchCallback={failFetchCallback}
+            setCurrentCell={setCurrentCell}
+            setCurrentCard={setCurrentCard}
+            setHoveredCard={setHoveredCard}
+            setBoardData={setBoardData}
+            addCardHandler={addCardHandler}
+
+          />
+        );
+        currentDate.add(1, 'days');
+      }
+
+      setDays(countedDays)
+    }
+  }, [cells]);
+
 
 
   useEffect(() => {
     moment.locale('en'); // Set the desired default locale
   }, []);
 
-    const dragOverHandler = (e) => {
+  const dragOverHandler = (e) => {
     e.preventDefault();
   };
 
-  const dropCardHandler = async (e, cell) => {
+  const dropCardHandler = async (e, cellId) => {
     e.preventDefault();
     
+    console.log("currentCard", currentCard)
+    console.log("currentCell", currentCell)
+    console.log("cells", cells)
+    console.log("hoveredCard", hoveredCard)
     if (currentCard && currentCell && cells && hoveredCard) {
-      const dropIndex = cell.items.indexOf(hoveredCard);
+      
+      let dropIndex = 0;
+      if (hoveredCard) {
+        console.log("hoveredCard !!!", hoveredCard)
+        console.log("cells !!!", cells)
+        const cellToDrop = cells.find(el => el.id === cellId);
+        dropIndex = cellToDrop?.find(el => el.id === hoveredCard.id) || 0;
+      }
+      console.log("dropIndex !!!", dropIndex)
+      // const dropIndex = cellId.items.indexOf(hoveredCard);
       
       setBoardData((board) => {
         if (board) {
           
-          const cellFrom = board.cellsData.find((col) => col.id === currentCell.id);
-          const cellTo = board.cellsData.find((col) => col.id === cell.id);
+          const cellFrom = cells.find((col) => col.id === currentCell.id);
+          const cellTo = cells.find((col) => col.id === cellId);
           
           if (cellFrom && cellTo) {
             const currentCardIndex = cellFrom.items.indexOf(currentCard);
@@ -68,7 +125,7 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
       });
 
       
-      dndCard(boardId, currentCell.id, currentCard.id, cell.id, dropIndex + 1, failFetchCallback);
+      dndCard(boardId, currentCell.id, currentCard.id, cellId, dropIndex + 1, failFetchCallback);
     }
 
     const target = e.target;
@@ -144,74 +201,7 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
   );
 
 
-  const startOfMonth = moment(selectedDate).startOf('month');
-  const endOfMonth = moment(selectedDate).endOf('month');
-  const startDate = moment(startOfMonth).startOf('week');
-  const endDate = moment(endOfMonth).endOf('week');
-
-console.log('startOfMonth', startOfMonth.valueOf());
-console.log('startDate', startDate.valueOf());
-
-  const days = [];
-  let currentDate = startDate;
-
-  while (currentDate.isSameOrBefore(endDate)) {
-    const isOutsideMonth = !currentDate.isBetween(startOfMonth, endOfMonth, null, '[]');
-    days.push(
-      <DayCell
-        key={currentDate.format('YYYY-MM-DD')}
-        day={currentDate.format('D')}
-        $isOutsideMonth={isOutsideMonth}
-      />
-    );
-    currentDate.add(1, 'days');
-  }
-
-
-
-
-//  <div className={styles.board}>
-//       <h1 className={styles.boardName}>{nameBoard}</h1>
-//       { isShowModal ? renderModal() : null}
-//       <div className={styles.cells}>
-//         {cells && cells.map(cell => 
-//           <div key={cell.id} className={styles.cellWrapper}>
-//             <h2 className={styles.cellTitle}>{cell.title}</h2>
-//             <div 
-//               key={cell.id}
-//               className={styles.cell}
-//               onDragOver={(e) => dragOverHandler(e)}
-//               onDrop={(e) => dropCardHandler(e, cell)}
-//             >
-              
-//               {cell.items.map(item => (
-//                 <Card 
-//                   key={item.id}
-//                   card={item} 
-//                   cell={cell}
-//                   boardId={boardId}
-//                   failFetchCallback={failFetchCallback}
-//                   setCurrentCell={setCurrentCell}
-//                   setCurrentCard={setCurrentCard}
-//                   setHoveredCard={setHoveredCard}
-//                   setCells={setCells}
-//                   setBoardData={setBoardData}
-//                 />
-//               ))}
-//               <div 
-//                 className={styles.plusWrapper}
-//                 onClick={() => addCardHandler(cell)}
-//               >
-//                 <Plus className={styles.plusIcon}/>
-//               </div>
-//             </div>
-//           </div>
-//         )}
-//       </div>
-//     </div>
-
-
-
+  
 
   return (
     <div>

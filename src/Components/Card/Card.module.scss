@@ -1,92 +1,129 @@
+.dateWrapper{
+  display: flex;
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.cell {
+  width: 100%;
+}
+
+.day {
+  font-weight: 700;
+}
+
+.cardsCount {
+  margin-left: 6px;
+  color: var(--disabled);
+}
+
 .card {
     width: 100%;
     border: 2px solid var(--accentSecondary);
-    padding: 10px;
+    padding: 6px;
     border-radius: 6px;
-    margin: 5px;
+    margin-bottom: 5px;
     cursor: grab;
     background-color: var(--background);
+}
+
+.editWrapper{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cardTitle,
+.cardTitleInput {
+  display: block;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 4px;
+}
+
+.cardDescription,
+.cardDescriptionInput {
+  display: block;
+  width: 100%;
+  font-size: 14px;
+  color: var(--darkText);
+  padding: 4px;
+}
+
+.cardTitleInput,
+.cardDescriptionInput {
+  height: 33px;
+}
+
+.bottomWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px;
+}
+
+.iconWrapper {
+  display: flex;
+  height: 22px;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.calendar {
+  width: 246px !important;
+  border: 2px solid var(--accentSecondary) !important;
+  border-radius: 6px;
+}
+
+.cardDate {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--disabled);
+}
+
+.editIcon {
+  cursor: default;
+  path {
+    stroke: var(--dark);
+  }
+}
+
+.deleteIcon {
+  cursor: default;
+  path {
+    stroke: var(--dark);
+  }
+}
+
+.crossIcon {
+  cursor: default;
+  width: 16px;
+  
+  path {
+    fill: var(--errorColor);
+  }
+}
+
+.okIcon {
+  cursor: default;
+  stroke: var(--successColor);
+}
+
+.plusWrapper {
+  margin-top: auto;  
+}
+
+.plusIcon {
+  path {
+    fill: var(--disabled);
+    transition: fill 0.3s ease;
   }
 
-  .editWrapper{
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .cardTitle,
-  .cardTitleInput {
-    display: block;
-    width: 246px;
-    font-size: 16px;
-    font-weight: 700;
-    padding: 6px;
-  }
-
-  .cardDescription,
-  .cardDescriptionInput {
-    display: block;
-    width: 246px;
-    color: var(--darkText);
-    padding: 6px;
-  }
-
-  .cardTitleInput,
-  .cardDescriptionInput {
-    height: 33px;
-  }
-
-  .bottomWrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding: 6px;
-  }
-
-  .iconWrapper {
-    display: flex;
-    height: 22px;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 8px;
-  }
-
-  .calendar {
-    width: 246px !important;
-    border: 2px solid var(--accentSecondary) !important;
-    border-radius: 6px;
-  }
-
-  .cardDate {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--disabled);
-  }
-
-  .editIcon {
-    cursor: default;
+  &:hover {
     path {
-      stroke: var(--dark);
+      fill: var(--accent);
     }
   }
-
-  .deleteIcon {
-    cursor: default;
-    path {
-      stroke: var(--dark);
-    }
-  }
-
-  .crossIcon {
-    cursor: default;
-    width: 16px;
-    
-    path {
-      fill: var(--errorColor);
-    }
-  }
-
-  .okIcon {
-    cursor: default;
-    stroke: var(--successColor);
-  }
+}
