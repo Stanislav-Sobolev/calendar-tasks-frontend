@@ -4,13 +4,105 @@ import moment from 'moment';
 import DayCell from '../DayCell/DayCell';
 import { toast } from 'react-toastify';
 import cardEmptyTemplate from '../../assets/json/cardEmptyTemplate.json';
-import styles from './Calendar.module.scss';
 import { createCard, dndCard } from '../../helpers/fetchers';
-import { Ok, Cross } from '../Icons';
+import { Ok as OkIcon, Cross as CrosIcon } from '../Icons';
 
 const CalendarContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 190px);
+`;
+
+const CheckboxLabel = styled.label`
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 6px;
+  cursor: pointer;
+  ${({ color }) => `background-color: ${color};`}
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+`;
+
+const ModalWrapper = styled.div`
+  background-color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 3;
+`;
+
+const StyledInput = styled.input`
+  display: block;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 6px;
+`;
+
+const StyledIconWrapper = styled.div`
+  display: flex;
+  height: 22px;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: 8px;
+`;
+
+const Ok = styled(OkIcon)`
+  cursor: default;
+  stroke: var(--successColor);
+`;
+
+const Cross = styled(CrosIcon)`
+  path {
+    fill: var(--errorColor);
+  }
+`;
+
+const StyledButtonWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  align-items: baseline;
+  margin-bottom: 8px;
+`;
+
+const StyledButton = styled.button`
+  padding: 10px 22px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  background-color: var(--accent);
+  color: #fff;
+
+  &:hover {
+    background-color: var(--accentThird);
+  }
+`;
+
+const StyledCalendarTitle = styled.span`
+  display: flex;
+  width: 140px;
+  font-weight: 600;
+  justify-content: center;
 `;
 
 const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
@@ -183,79 +275,77 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
 
   const renderMarkersCheckbox = () => (
     <div>
-      <label className={styles.red}>
-        <input
+      <CheckboxLabel color="red">
+        <StyledInput
           type="checkbox"
           value="red"
           checked={colors.includes('red')}
           onChange={() => handleCheckboxChange('red')}
         />
-      </label>
-      <label className={styles.green}>
-        <input
+      </CheckboxLabel>
+      <CheckboxLabel color="green">
+        <StyledInput
           type="checkbox"
           value="green"
           checked={colors.includes('green')}
           onChange={() => handleCheckboxChange('green')}
         />
-        
-      </label>
-      <label className={styles.blue}>
-        <input
+      </CheckboxLabel>
+      <CheckboxLabel color="blue">
+        <StyledInput
           type="checkbox"
           value="blue"
           checked={colors.includes('blue')}
           onChange={() => handleCheckboxChange('blue')}
         />
-      </label>
+      </CheckboxLabel>
     </div>
   );
 
-
-  const renderModal = () => (
+const renderModal = () => (
     <>
-    <div className={styles.modalOverlay}>
-    <div className={styles.modalWrapper}>
-      {renderMarkersCheckbox()}
-      <input
-        className={styles.cardTextInput}
-        type="text"
-        value={title}
-        placeholder='title'
-        onChange={(e) => setTitle(e.target.value)}
-      />
-      <input
-        className={styles.cardDescriptionInput}
-        type="text"
-        value={description}
-        placeholder='description'
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      <div className={styles.iconWrapper}>
-      <div onClick={cancelHandler}>
-        <Cross className={styles.crossIcon}/>
-      </div>
-      <div onClick={saveUpdateHandler}>
-        <Ok className={styles.okIcon} />
-      </div>
-      </div>
-      </div>
-    </div>
+      <ModalOverlay>
+        <ModalWrapper>
+          {renderMarkersCheckbox()}
+          <StyledInput
+            type="text"
+            value={title}
+            placeholder="title"
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <StyledInput
+            type="text"
+            value={description}
+            placeholder="description"
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          <StyledIconWrapper>
+            <div onClick={cancelHandler}>
+              <Cross />
+            </div>
+            <div onClick={saveUpdateHandler}>
+              <Ok />
+            </div>
+          </StyledIconWrapper>
+        </ModalWrapper>
+      </ModalOverlay>
     </>
   );
 
-  return (
+ return (
     <div>
-      <div>
-        <button onClick={() => setSelectedDate(moment(selectedDate).subtract(1, 'month'))}>
+      <StyledButtonWrapper>
+        <StyledButton onClick={() => setSelectedDate(moment(selectedDate).subtract(1, 'month'))}>
           Previous Month
-        </button>
-        {selectedDate.format('MMMM YYYY')}
-        <button onClick={() => setSelectedDate(moment(selectedDate).add(1, 'month'))}>
+        </StyledButton>
+        <StyledCalendarTitle>
+          {selectedDate.format('MMMM YYYY')}
+        </StyledCalendarTitle>
+        <StyledButton onClick={() => setSelectedDate(moment(selectedDate).add(1, 'month'))}>
           Next Month
-        </button>
-      </div>
-      { isShowModal ? renderModal() : null}
+        </StyledButton>
+      </StyledButtonWrapper>
+      {isShowModal ? renderModal() : null}
       <CalendarContainer>{days}</CalendarContainer>
     </div>
   );

@@ -1,10 +1,133 @@
 import { useState, useRef } from 'react';
+import styled from 'styled-components';
 import { toast } from 'react-toastify';
 
-import { Edit, Delete, Ok, Cross } from '../Icons';
+import { Edit as EditIcom, Delete as DeleteIcon, Ok as OkIcon, Cross as CrosIcon } from '../Icons';
 import { deleteCard, updateCard } from '../../helpers/fetchers';
 
-import styles from './Card.module.scss';
+const StyledMarkerList = styled.ul`
+  display: flex;
+  gap: 2px;
+`;
+
+const StyledMarker = styled.ul`
+  height: 6px;
+  width: 24px;
+  border-radius: 3px;
+  background-color: ${props => props.color};
+`;
+
+const CheckboxLabel = styled.label`
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 6px;
+  cursor: pointer;
+  ${({ color }) => `background-color: ${color};`}
+`;
+
+const StyledInput = styled.input`
+  display: block;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 6px;
+`;
+
+const Edit = styled(EditIcom)`
+  cursor: default;
+  path {
+    stroke: var(--dark);
+  }
+`;
+
+const Delete = styled(DeleteIcon)`
+  cursor: default;
+  path {
+    stroke: var(--dark);
+  }
+`;
+
+const Ok = styled(OkIcon)`
+  cursor: default;
+  stroke: var(--successColor);
+`;
+
+const Cross = styled(CrosIcon)`
+  cursor: default;
+  width: 16px;
+  
+  path {
+    fill: var(--errorColor);
+  }
+`;
+
+const CardContainer = styled.li`
+  width: 100%;
+  border: 2px solid var(--accentSecondary);
+  padding: 6px;
+  border-radius: 6px;
+  margin-bottom: 5px;
+  cursor: grab;
+  background-color: var(--background);
+  display: flex;
+  flex-direction: column;
+`;
+
+const EditWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const CardTitleInput = styled.input`
+  display: block;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 4px;
+  height: 33px;
+`;
+
+const CardDescriptionInput = styled.input`
+  display: block;
+  width: 100%;
+  font-size: 14px;
+  color: var(--darkText);
+  padding: 4px;
+  height: 33px;
+`;
+
+const BottomWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px;
+`;
+
+const IconWrapper = styled.div`
+  display: flex;
+  height: 22px;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+`;
+
+const StyledCardTitle = styled.span`
+  display: block;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 4px;
+`;
+
+const StyledCardDescription = styled.span`
+  display: block;
+  width: 100%;
+  font-size: 14px;
+  color: var(--darkText);
+  padding: 4px;
+`;
 
 export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, setCurrentCard, setHoveredCard, setBoardData }) => {
   const { id: cardId } = card;
@@ -14,9 +137,11 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
   const [originalTitle, setOriginalTitle] = useState(card.title);
   const [description, setDescription] = useState(card.description);
   const [originalDescription, setOriginalDescription] = useState(card.description);
+  const [colors, setColors] = useState(card.colors);
+  const [originalColors, setOriginalColors] = useState(card.colors);
   const [isEditing, setEditing] = useState(false);
 
-  const classNamesToStyle = [styles.card, styles.cardDescription, styles.cardTitle, styles.iconWrapper, styles.editIcon, styles.deleteIcon];
+  const classNamesToStyle = [CardContainer.className, StyledCardDescription.className, StyledCardTitle.className, IconWrapper.className, Edit.className, Delete.className];
   const elementRef = useRef(null);
 
   const dragStartHandler = (cell) => {
@@ -34,6 +159,7 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
     e.preventDefault();
     const target = e.target;
 
+    
     if (classNamesToStyle.includes(target.className) && elementRef.current) {
       setHoveredCard(card);
       elementRef.current.style.boxShadow = '0 5px 5px rgba(0, 0, 0, 0.2)';
@@ -49,6 +175,7 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
   const editHandler = () => {
     setOriginalTitle(title);
     setOriginalDescription(description);
+    setOriginalColors(colors)
     setEditing(true);
   }
 
@@ -63,7 +190,7 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
             const cardIndex = cell.items.findIndex((c) => c.id === cardId);
   
             if (cardIndex !== -1) {
-              cell.items[cardIndex] = { title, description, id: cardId };
+              cell.items[cardIndex] = { title, description, colors, id: cardId };
               return {...board};
             }
           }
@@ -71,7 +198,7 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
         return board;
       });
   
-      updateCard(boardId, cellId, cardId, {id: cardId, title, description}, failFetchCallback);
+      updateCard(boardId, cellId, cardId, {id: cardId, title, description, colors}, failFetchCallback);
   
       setEditing(false);
     } else {
@@ -82,6 +209,7 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
   const cancelHandler = () => {
     setTitle(originalTitle);
     setDescription(originalDescription);
+    setColors(originalColors);
     setEditing(false);
   }
 
@@ -106,57 +234,46 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
     deleteCard(boardId, cellId, cardId, failFetchCallback);
   }
 
-  const renderContent = () => isEditing ? (
-    <>
-      <div className={styles.editWrapper}>
-        <input
-          className={styles.cardTitleInput}
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+  const handleCheckboxChange = (color) => {
+    if (colors.includes(color)) {
+      setColors(colors.filter((selectedColor) => selectedColor !== color));
+    } else {
+      setColors([...colors, color]);
+    }
+  };
+
+  const renderMarkersCheckbox = () => (
+    <div>
+      <CheckboxLabel color="red">
+        <StyledInput
+          type="checkbox"
+          value="red"
+          checked={colors?.includes('red')}
+          onChange={() => handleCheckboxChange('red')}
         />
-        <input
-          className={styles.cardDescriptionInput}
-          type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+      </CheckboxLabel>
+      <CheckboxLabel color="green">
+        <StyledInput
+          type="checkbox"
+          value="green"
+          checked={colors?.includes('green')}
+          onChange={() => handleCheckboxChange('green')}
         />
-        <div className={styles.iconWrapper}>
-          <div onClick={cancelHandler}>
-            <Cross className={styles.crossIcon}/>
-          </div>
-          <div onClick={saveUpdateCardHandler}>
-            <Ok className={styles.okIcon} />
-          </div>
-        </div>
-      </div>
-    </>
-  ) : (
-    <>
-      <ul className={styles.markerList}>
-        <li className={styles.marker1} />
-        <li className={styles.marker2} />
-        <li className={styles.marker3} />
-      </ul>
-      <span className={styles.cardTitle}>{title}</span>
-      <span className={styles.cardDescription}>{description}</span>
-      <div className={styles.bottomWrapper}>
-        <div className={styles.iconWrapper}>
-          <div onClick={editHandler}>
-            <Edit className={styles.editIcon} />
-          </div>
-          <div onClick={deleteHandler}>
-            <Delete className={styles.deleteIcon} />
-          </div>
-        </div>
-      </div>
-    </>
+      </CheckboxLabel>
+      <CheckboxLabel color="blue">
+        <StyledInput
+          type="checkbox"
+          value="blue"
+          checked={colors?.includes('blue')}
+          onChange={() => handleCheckboxChange('blue')}
+        />
+      </CheckboxLabel>
+    </div>
   );
 
   return (
-    <li
+    <CardContainer
       ref={elementRef}
-      className={styles.card}
       draggable={!isEditing}
       onDragStart={() => dragStartHandler(cell)}
       onDragLeave={dragLeaveHandler}
@@ -164,7 +281,46 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
       onDragOver={dragOverHandler}
       onDrop={dropHandler}
     >
-      {renderContent()}
-    </li>
+      {isEditing ? (
+        <EditWrapper>
+          {renderMarkersCheckbox()}
+          <CardTitleInput type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <CardDescriptionInput
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          <IconWrapper>
+            <div onClick={cancelHandler}>
+              <Cross />
+            </div>
+            <div onClick={saveUpdateCardHandler}>
+              <Ok />
+            </div>
+          </IconWrapper>
+        </EditWrapper>
+      ) : (
+        <>
+          {colors?.length ?
+            <StyledMarkerList>
+              {colors.map(el => <StyledMarker key={el} color={el} />)}
+            </StyledMarkerList>
+            : null
+          }
+          <StyledCardTitle>{title}</StyledCardTitle>
+          <StyledCardDescription>{description}</StyledCardDescription>
+          <BottomWrapper>
+            <IconWrapper>
+              <div onClick={editHandler}>
+                <Edit />
+              </div>
+              <div onClick={deleteHandler}>
+                <Delete />
+              </div>
+            </IconWrapper>
+          </BottomWrapper>
+        </>
+      )}
+    </CardContainer>
   );
 };

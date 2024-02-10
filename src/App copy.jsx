@@ -38,30 +38,24 @@ export const App = () => {
 
   useEffect(() => {
     fetchBoard('1');
+  // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
     setFilteredBoard(fetchedBoard);
+  // eslint-disable-next-line
   }, [fetchedBoard]);
 
-useEffect(() => {
-  if (fetchedBoard) {
-    setFilteredBoard(prev => {
-      const updatedBoard = { ...fetchedBoard };
-
-      updatedBoard.cellsData = updatedBoard.cellsData.map(cell =>
-        ({ ...cell, items: cell.items.filter(card => 
-          card.title.toLowerCase().includes(filterText.toLowerCase()) || 
-          card.description.toLowerCase().includes(filterText.toLowerCase())
-        )})
-      );
-
-      return updatedBoard;
-    });
-  }
-}, [filterText, fetchedBoard]);
-
-
+  // useEffect(() => {
+  //   if (fetchedBoard){
+  //     setFilteredBoard(prev => {
+  //       const filteredData = prev.cellsData.map(cell =>
+  //         cell.items.filter(card => card.title.includes(filterText) || card.description.includes(filterText)));
+        
+  //         return filteredData;
+  //     })
+  //   }
+  // }, [filterText]);
 
   const fetchBoard = async (defaultBoardId) => {
     try {
@@ -86,15 +80,15 @@ useEffect(() => {
   return (
     <AppContainer>
       <ToastContainer />
-      <SearchPanel>
+      <SearchPanel >
         <StyledInput
           type="text"
           value={filterText}
-          placeholder="filter text"
+          placeholder="title"
           onChange={(e) => setFilterText(e.target.value)}
         />
       </SearchPanel>
-      {filteredBoard && 
+      { filteredBoard && 
       <Calendar 
         boardData={filteredBoard}
         setBoardData={setFetchedBoard}
