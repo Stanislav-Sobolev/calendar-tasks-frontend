@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import DayCell from '../DayCell/DayCell';
@@ -27,6 +27,13 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
   const [title, setTitle] = useState('');
   const [selectedDate, setSelectedDate] = useState(moment());
 
+  const refCurrentCard = useRef();
+  const refCurrentCell  = useRef();
+  const refHoveredCard  = useRef();
+  refCurrentCard.current = currentCard;
+  refCurrentCell.current = currentCell;
+  refHoveredCard.current = hoveredCard;
+
   useEffect(() => {
     setCells(cellsData);
   }, [cellsData]);
@@ -41,24 +48,20 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
       const countedDays = [];
       let currentDate = startDate;
       
-      const cellsRange = cells.filter(el => (el.id >= startDate.valueOf()) && (el.id <= endDate.valueOf()))
-          // console.log("currentCard22", currentCard)
-          // console.log("currentCell22", currentCell)
-          // console.log("cells22", cells)
-          // console.log("hoveredCard22", hoveredCard)
-
+      const cellsRange = cells.filter(el => moment(el.id).isSameOrAfter(startDate.unix()) && moment(el.id).isSameOrBefore(endDate.unix()))
+      
       while (currentDate.isSameOrBefore(endDate)) {
         const isOutsideMonth = !currentDate.isBetween(startOfMonth, endOfMonth, null, '[]');
-        const currentCell = cellsRange.find(el => moment(el.id).format('YMD') === currentDate.format('YMD'));
+        const currentCellData = cellsRange.find(el => moment.unix(el.id).format('YMD') === currentDate.format('YMD'));
 
         countedDays.push(
           <DayCell
             key={currentDate.format('YYYY-MM-DD')}
             day={currentDate.format('D')}
-            cellId={currentDate.valueOf()}
+            cellId={currentDate.unix()}
             $isOutsideMonth={isOutsideMonth}
             boardId={boardId}
-            currentCell={currentCell}
+            currentCell={currentCellData}
             dragOverHandler={dragOverHandler}
             dropCardHandler={dropCardHandler}
             failFetchCallback={failFetchCallback}
@@ -75,7 +78,7 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
 
       setDays(countedDays)
     }
-  }, [cells]);
+  }, [cells, boardData]);
 
 
 
@@ -90,33 +93,25 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
   const dropCardHandler = async (e, cellId) => {
     e.preventDefault();
     
-    console.log("currentCard", currentCard)
-    console.log("currentCell", currentCell)
-    console.log("cells", cells)
-    console.log("hoveredCard", hoveredCard)
-    if (currentCard && currentCell && cells && hoveredCard) {
+    if (refCurrentCard.current && refCurrentCell.current && cells && refHoveredCard.current) {
       
       let dropIndex = 0;
-      if (hoveredCard) {
-        console.log("hoveredCard !!!", hoveredCard)
-        console.log("cells !!!", cells)
+      if (refHoveredCard.current) {
         const cellToDrop = cells.find(el => el.id === cellId);
-        dropIndex = cellToDrop?.find(el => el.id === hoveredCard.id) || 0;
+        dropIndex = cellToDrop?.items.find(el => el.id === refHoveredCard.current.id) || 0;
       }
-      console.log("dropIndex !!!", dropIndex)
-      // const dropIndex = cellId.items.indexOf(hoveredCard);
       
       setBoardData((board) => {
         if (board) {
           
-          const cellFrom = cells.find((col) => col.id === currentCell.id);
+          const cellFrom = cells.find((col) => col.id === refCurrentCell.current.id);
           const cellTo = cells.find((col) => col.id === cellId);
           
           if (cellFrom && cellTo) {
-            const currentCardIndex = cellFrom.items.indexOf(currentCard);
+            const currentCardIndex = cellFrom.items.indexOf(refCurrentCard.current);
             cellFrom.items.splice(currentCardIndex, 1);
 
-            cellTo.items.splice(dropIndex + 1, 0, currentCard);
+            cellTo.items.splice(dropIndex + 1, 0, refCurrentCard.current);
             
             return {...board};
           }
@@ -125,7 +120,7 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
       });
 
       
-      dndCard(boardId, currentCell.id, currentCard.id, cellId, dropIndex + 1, failFetchCallback);
+      dndCard(boardId, refCurrentCell.current.id, refCurrentCard.current.id, cellId, dropIndex + 1, failFetchCallback);
     }
 
     const target = e.target;
@@ -199,9 +194,6 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
     </div>
     </>
   );
-
-
-  
 
   return (
     <div>

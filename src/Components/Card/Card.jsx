@@ -34,15 +34,11 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
     e.preventDefault();
     const target = e.target;
 
-    // console.log("elementRef", elementRef.current);
-    // console.log("classNamesToStyle.includes(target.className)", classNamesToStyle.includes(target.className));
-
     if (classNamesToStyle.includes(target.className) && elementRef.current) {
-      console.log('!!!!!!555555555555555555', card)
       setHoveredCard(card);
       elementRef.current.style.boxShadow = '0 5px 5px rgba(0, 0, 0, 0.2)';
     }
-  }
+  } 
 
   const dropHandler = () => {
     if (elementRef.current) {
