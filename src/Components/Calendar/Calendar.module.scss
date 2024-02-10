@@ -143,3 +143,38 @@
   stroke: var(--successColor);
 }
 
+
+.red {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 6px;
+  cursor: pointer;
+  background-color: red;
+}
+
+.green {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 6px;
+  cursor: pointer;
+  background-color: green;
+}
+
+.blue {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 6px;
+  cursor: pointer;
+  background-color: blue;
+}
+
+input[type="checkbox"] {
+  display: none;
+}
+
+input[type="checkbox"]:checked + label {
+  border: 2px solid black;
+}

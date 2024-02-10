@@ -24,6 +24,7 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
   const [isShowModal, setIsShowModal] = useState(false);
   const [description, setDescription] = useState('');
   const [title, setTitle] = useState('');
+  const [colors, setColors] = useState([]);
   const [selectedDate, setSelectedDate] = useState(moment());
 
   const refCurrentCard = useRef();
@@ -143,7 +144,7 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
   }
 
   const saveUpdateHandler = () => {
-    const createdCard = { ...cardEmptyTemplate, id: Date.now(), title, description };
+    const createdCard = { ...cardEmptyTemplate, id: Date.now(), title, description, colors };
 
     if (activeCellId && title && description) {
       setBoardData((board) => {
@@ -172,10 +173,50 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
     }
   };
 
+  const handleCheckboxChange = (color) => {
+    if (colors.includes(color)) {
+      setColors(colors.filter((selectedColor) => selectedColor !== color));
+    } else {
+      setColors([...colors, color]);
+    }
+  };
+
+  const renderMarkersCheckbox = () => (
+    <div>
+      <label className={styles.red}>
+        <input
+          type="checkbox"
+          value="red"
+          checked={colors.includes('red')}
+          onChange={() => handleCheckboxChange('red')}
+        />
+      </label>
+      <label className={styles.green}>
+        <input
+          type="checkbox"
+          value="green"
+          checked={colors.includes('green')}
+          onChange={() => handleCheckboxChange('green')}
+        />
+        
+      </label>
+      <label className={styles.blue}>
+        <input
+          type="checkbox"
+          value="blue"
+          checked={colors.includes('blue')}
+          onChange={() => handleCheckboxChange('blue')}
+        />
+      </label>
+    </div>
+  );
+
+
   const renderModal = () => (
     <>
     <div className={styles.modalOverlay}>
     <div className={styles.modalWrapper}>
+      {renderMarkersCheckbox()}
       <input
         className={styles.cardTextInput}
         type="text"

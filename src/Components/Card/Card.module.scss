@@ -127,3 +127,28 @@
     }
   }
 }
+
+.markerList {
+  display: flex;
+  gap: 2px;
+}
+
+.marker1,
+.marker2,
+.marker3 {
+height: 6px;
+width: 24px;
+border-radius: 3px;
+}
+
+.marker1 {
+  background-color: red;
+}
+
+.marker2 {
+  background-color: green;
+}
+
+.marker3 {
+  background-color: blue;
+}

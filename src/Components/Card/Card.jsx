@@ -53,30 +53,30 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
   }
 
   const saveUpdateCardHandler = async () => {
-    // if (title && description) {
-    //   setBoardData(board => {
-    //     if (board) {
+    if (title && description) {
+      setBoardData(board => {
+        if (board) {
           
-    //       const cell = board.cellsData.find((col) => col.id === cellId);
+          const cell = board.cellsData.find((col) => col.id === cellId);
           
-    //       if (cell) {
-    //         const cardIndex = cell.items.findIndex((c) => c.id === cardId);
+          if (cell) {
+            const cardIndex = cell.items.findIndex((c) => c.id === cardId);
   
-    //         if (cardIndex !== -1) {
-    //           cell.items[cardIndex] = { title, description };
-    //           return {...board};
-    //         }
-    //       }
-    //     }
-    //     return board;
-    //   });
+            if (cardIndex !== -1) {
+              cell.items[cardIndex] = { title, description, id: cardId };
+              return {...board};
+            }
+          }
+        }
+        return board;
+      });
   
-    //   updateCard(boardId, cellId, cardId, {id: cardId, title, description}, failFetchCallback);
+      updateCard(boardId, cellId, cardId, {id: cardId, title, description}, failFetchCallback);
   
-    //   setEditing(false);
-    // } else {
-    //   toast.error('Please, fill Title, Description and CalendarDate');
-    // }
+      setEditing(false);
+    } else {
+      toast.error('Please, fill Title, Description and CalendarDate');
+    }
   }
 
   const cancelHandler = () => {
@@ -86,24 +86,24 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
   }
 
   const deleteHandler = async () => {
-    // setBoardData((board) => {
-    //   if (board) {
+    setBoardData((board) => {
+      if (board) {
         
-    //     const cell = board.cellsData.find((col) => col.id === cellId);
+        const cell = board.cellsData.find((col) => col.id === cellId);
         
-    //     if (cell) {
-    //       const cardIndex = cell.items.findIndex((c) => c.id === cardId);
+        if (cell) {
+          const cardIndex = cell.items.findIndex((c) => c.id === cardId);
 
-    //       if (cardIndex !== -1) {
-    //         cell.items.splice(cardIndex, 1);
-    //         return {...board};
-    //       }
-    //     }
-    //   }
-    //   return board;
-    // });
+          if (cardIndex !== -1) {
+            cell.items.splice(cardIndex, 1);
+            return {...board};
+          }
+        }
+      }
+      return board;
+    });
 
-    // deleteCard(boardId, cellId, cardId, failFetchCallback);
+    deleteCard(boardId, cellId, cardId, failFetchCallback);
   }
 
   const renderContent = () => isEditing ? (
@@ -133,6 +133,11 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
     </>
   ) : (
     <>
+      <ul className={styles.markerList}>
+        <li className={styles.marker1} />
+        <li className={styles.marker2} />
+        <li className={styles.marker3} />
+      </ul>
       <span className={styles.cardTitle}>{title}</span>
       <span className={styles.cardDescription}>{description}</span>
       <div className={styles.bottomWrapper}>
