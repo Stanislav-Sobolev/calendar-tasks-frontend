@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { Card } from '../Card/Card';
 import styles from '../Card/Card.module.scss';
-import stylesBoard from '../Board/Board.module.scss';
 import { Plus } from '../Icons';
 
 const Cell = styled.div`

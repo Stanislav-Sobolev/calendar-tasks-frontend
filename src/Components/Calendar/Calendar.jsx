@@ -4,8 +4,7 @@ import moment from 'moment';
 import DayCell from '../DayCell/DayCell';
 import { toast } from 'react-toastify';
 import cardEmptyTemplate from '../../assets/json/cardEmptyTemplate.json';
-import cellEmptyTemplate from '../../assets/json/cellEmptyTemplate.json';
-import styles from '../Board/Board.module.scss';
+import styles from './Calendar.module.scss';
 import { createCard, dndCard } from '../../helpers/fetchers';
 import { Ok, Cross } from '../Icons';
 
@@ -17,12 +16,11 @@ const CalendarContainer = styled.div`
 const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
   const { id: boardId, cellsData } = boardData;
 
-  const [cells, setCells] = useState(null);
   const [days, setDays] = useState([]);
   const [currentCell, setCurrentCell] = useState(null);
   const [currentCard, setCurrentCard] = useState(null);
   const [hoveredCard, setHoveredCard] = useState(null);
-  const [activeCell, setActiveCell] = useState(null);
+  const [activeCellId, setActiveCellId] = useState(null);
   const [isShowModal, setIsShowModal] = useState(false);
   const [description, setDescription] = useState('');
   const [title, setTitle] = useState('');
@@ -36,11 +34,7 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
   refHoveredCard.current = hoveredCard;
 
   useEffect(() => {
-    setCells(cellsData);
-  }, [boardData]);
-
-  useEffect(() => {
-    if (cells) {
+    if (cellsData) {
       const startOfMonth = moment(selectedDate).startOf('month');
       const endOfMonth = moment(selectedDate).endOf('month');
       const startDate = moment(startOfMonth).startOf('week');
@@ -49,7 +43,7 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
       const countedDays = [];
       let currentDate = startDate;
       
-      const cellsRange = cells.filter(el => moment(el.id).isSameOrAfter(startDate.unix()) && moment(el.id).isSameOrBefore(endDate.unix()))
+      const cellsRange = cellsData.filter(el => moment(el.id).isSameOrAfter(startDate.unix()) && moment(el.id).isSameOrBefore(endDate.unix()))
       
       while (currentDate.isSameOrBefore(endDate)) {
         const isOutsideMonth = !currentDate.isBetween(startOfMonth, endOfMonth, null, '[]');
@@ -79,7 +73,7 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
 
       setDays(countedDays)
     }
-  }, [cells, boardData]);
+  }, [cellsData, boardData, selectedDate]);
 
 
 
@@ -94,22 +88,22 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
   const dropCardHandler = async (e, cellId) => {
     e.preventDefault();
     
-    if (refCurrentCard.current && refCurrentCell.current && cells) {
+    if (refCurrentCard.current && refCurrentCell.current && cellsData) {
       let dropIndex = 0;
 
       if (refHoveredCard.current) {
-        const cellToDrop = cells.find(el => el.id === cellId);
+        const cellToDrop = cellsData.find(el => el.id === cellId);
         const isCardExist = cellToDrop ? cellToDrop.items.indexOf(refHoveredCard.current) : -1;
         dropIndex = isCardExist !== -1 ? isCardExist : 0;
       }
-      
+
       setBoardData((board) => {
         if (board) {
-          const cellFrom = board.cellsData.find((col) => col.id === refCurrentCell.current.id);
+          let cellFrom = board.cellsData.find((col) => col.id === refCurrentCell.current.id);
           let cellTo = board.cellsData.find((col) => col.id === cellId);
 
           if (!cellTo) {
-            const newCell = {...cellEmptyTemplate, id: cellId}
+            const newCell = {"title": "day", "items": [], id: cellId}
             board.cellsData.push(newCell)
             cellTo = board.cellsData.find((col) => col.id === cellId);
           }
@@ -118,7 +112,7 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
             const currentCardIndex = cellFrom.items.indexOf(refCurrentCard.current);
             cellFrom.items.splice(currentCardIndex, 1);
             cellFrom.items = [...cellFrom.items]
-
+            
             cellTo.items.splice(dropIndex + 1, 0, refCurrentCard.current);
             cellTo.items = [...cellTo.items]
             
@@ -136,8 +130,8 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
     target.style.boxShadow = 'none';
   };
 
-  const addCardHandler = (cell) => {
-    setActiveCell(cell);
+  const addCardHandler = (cellId) => {
+    setActiveCellId(cellId);
     setIsShowModal(true);
   }
 
@@ -145,17 +139,22 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
     setTitle('');
     setDescription('');
     setIsShowModal(false);
-    setActiveCell(null);
+    setActiveCellId(null);
   }
 
   const saveUpdateHandler = () => {
     const createdCard = { ...cardEmptyTemplate, id: Date.now(), title, description };
 
-    if (activeCell && title && description) {
+    if (activeCellId && title && description) {
       setBoardData((board) => {
         if (board) {
-          
-          const foundCell = board.cellsData.find((col) => col.id === activeCell.id);
+          let foundCell = board.cellsData.find((col) => col.id === activeCellId);
+
+          if (!foundCell) {
+            const newCell = {"title": "day", "items": [], id: activeCellId}
+            board.cellsData.push(newCell)
+            foundCell = board.cellsData.find((col) => col.id === activeCellId);
+          }
           
           if (foundCell) {
             foundCell.items.push(createdCard);
@@ -166,12 +165,12 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
         return board;
       });
   
-      createCard(boardId, activeCell.id, createdCard, failFetchCallback);
+      createCard(boardId, activeCellId, createdCard, failFetchCallback);
       cancelHandler();
     } else {
       toast.error('Please, fill Title, Description');
     }
-  }
+  };
 
   const renderModal = () => (
     <>
@@ -215,6 +214,7 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
           Next Month
         </button>
       </div>
+      { isShowModal ? renderModal() : null}
       <CalendarContainer>{days}</CalendarContainer>
     </div>
   );
