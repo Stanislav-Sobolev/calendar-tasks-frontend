@@ -4,6 +4,7 @@ import moment from 'moment';
 import DayCell from '../DayCell/DayCell';
 import { toast } from 'react-toastify';
 import cardEmptyTemplate from '../../assets/json/cardEmptyTemplate.json';
+import cellEmptyTemplate from '../../assets/json/cellEmptyTemplate.json';
 import styles from '../Board/Board.module.scss';
 import { createCard, dndCard } from '../../helpers/fetchers';
 import { Ok, Cross } from '../Icons';
@@ -36,7 +37,7 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
 
   useEffect(() => {
     setCells(cellsData);
-  }, [cellsData]);
+  }, [boardData]);
 
   useEffect(() => {
     if (cells) {
@@ -93,25 +94,33 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
   const dropCardHandler = async (e, cellId) => {
     e.preventDefault();
     
-    if (refCurrentCard.current && refCurrentCell.current && cells && refHoveredCard.current) {
-      
+    if (refCurrentCard.current && refCurrentCell.current && cells) {
       let dropIndex = 0;
+
       if (refHoveredCard.current) {
         const cellToDrop = cells.find(el => el.id === cellId);
-        dropIndex = cellToDrop?.items.find(el => el.id === refHoveredCard.current.id) || 0;
+        const isCardExist = cellToDrop ? cellToDrop.items.indexOf(refHoveredCard.current) : -1;
+        dropIndex = isCardExist !== -1 ? isCardExist : 0;
       }
       
       setBoardData((board) => {
         if (board) {
-          
-          const cellFrom = cells.find((col) => col.id === refCurrentCell.current.id);
-          const cellTo = cells.find((col) => col.id === cellId);
+          const cellFrom = board.cellsData.find((col) => col.id === refCurrentCell.current.id);
+          let cellTo = board.cellsData.find((col) => col.id === cellId);
+
+          if (!cellTo) {
+            const newCell = {...cellEmptyTemplate, id: cellId}
+            board.cellsData.push(newCell)
+            cellTo = board.cellsData.find((col) => col.id === cellId);
+          }
           
           if (cellFrom && cellTo) {
             const currentCardIndex = cellFrom.items.indexOf(refCurrentCard.current);
             cellFrom.items.splice(currentCardIndex, 1);
+            cellFrom.items = [...cellFrom.items]
 
             cellTo.items.splice(dropIndex + 1, 0, refCurrentCard.current);
+            cellTo.items = [...cellTo.items]
             
             return {...board};
           }
