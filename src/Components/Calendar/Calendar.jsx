@@ -60,6 +60,7 @@ const StyledIconWrapper = styled.div`
   justify-content: flex-end;
   gap: 8px;
   margin-left: 8px;
+  align-items: center;
 `;
 
 const Ok = styled(OkIcon)`
@@ -68,6 +69,7 @@ const Ok = styled(OkIcon)`
 `;
 
 const Cross = styled(CrosIcon)`
+  height: 16px;
   path {
     fill: var(--errorColor);
   }
@@ -100,12 +102,14 @@ const StyledButton = styled.button`
 
 const StyledCalendarTitle = styled.span`
   display: flex;
-  width: 140px;
+  width: 170px;
+  font-size: 22px;
   font-weight: 600;
   justify-content: center;
+  color: var(--accent)
 `;
 
-const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
+const Calendar = ({boardData, countries, holidays, failFetchCallback, setBoardData}) => {
   const { id: boardId, cellsData } = boardData;
 
   const [days, setDays] = useState([]);
@@ -127,7 +131,7 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
   refHoveredCard.current = hoveredCard;
 
   useEffect(() => {
-    if (cellsData) {
+    if (cellsData && holidays && countries) {
       const startOfMonth = moment(selectedDate).startOf('month');
       const endOfMonth = moment(selectedDate).endOf('month');
       const startDate = moment(startOfMonth).startOf('week');
@@ -141,6 +145,17 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
       while (currentDate.isSameOrBefore(endDate)) {
         const isOutsideMonth = !currentDate.isBetween(startOfMonth, endOfMonth, null, '[]');
         const currentCellData = cellsRange.find(el => moment.unix(el.id).format('YMD') === currentDate.format('YMD'));
+        const currentHolidays = holidays.filter(el => el.date === moment(currentDate).format('YYYY-MM-DD'));
+        let countriesData;
+
+        if (currentHolidays.length) {
+          countriesData = currentHolidays.map(el => {
+
+            const countryFound = countries.find(country => el.countryCode === country.countryCode);
+
+            return {...el, name: countryFound?.name}
+          });
+        }
 
         countedDays.push(
           <DayCell
@@ -150,6 +165,7 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
             $isOutsideMonth={isOutsideMonth}
             boardId={boardId}
             currentCell={currentCellData}
+            countriesData={countriesData}
             dragOverHandler={dragOverHandler}
             dropCardHandler={dropCardHandler}
             failFetchCallback={failFetchCallback}
@@ -166,9 +182,7 @@ const Calendar = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
 
       setDays(countedDays)
     }
-  }, [cellsData, boardData, selectedDate]);
-
-
+  }, [cellsData, boardData, countries, holidays, selectedDate]);
 
   useEffect(() => {
     moment.locale('en'); // Set the desired default locale
@@ -333,7 +347,7 @@ const renderModal = () => (
   );
 
  return (
-    <div>
+    <div id="calendar-container">
       <StyledButtonWrapper>
         <StyledButton onClick={() => setSelectedDate(moment(selectedDate).subtract(1, 'month'))}>
           Previous Month

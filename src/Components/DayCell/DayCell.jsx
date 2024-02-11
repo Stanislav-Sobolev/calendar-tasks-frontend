@@ -1,4 +1,4 @@
-import React from 'react';
+import {useState} from 'react';
 import styled from 'styled-components';
 import { Card } from '../Card/Card';
 import { Plus as PlusIcon } from '../Icons';
@@ -15,10 +15,16 @@ const Cell = styled.div`
   background-color: ${(props) => (props.$isOutsideMonth ? '#f5f5f5' : 'white')};
 `;
 
-const DateWrapper = styled.div`
+const TopWrapper = styled.div`
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
   margin-bottom: 6px;
+`;
+
+const DateWrapper = styled.div`
+  display: flex;
 `;
 
 const CardsList = styled.ul`
@@ -57,12 +63,49 @@ const Plus = styled(PlusIcon)`
   }
 `;
 
+const HolidayShower = styled.div`
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accentThird);
+  position: relative;
+
+  &:hover {
+    .plusIcon path {
+      fill: var(--accent);
+    }
+  }
+`;
+
+const HolidayModal = styled.ul`
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  top: 25px;
+  right: 0;
+  padding: 3px;
+  border-radius: 4px;
+  background-color: var(--input);
+  z-index: 2;
+  gap: 4px;
+`;
+
+const HolidayCountry = styled.ul`
+  font-weight: 400;
+  color: var(--disabled);
+`;
+
+const HolidayName = styled.ul`
+  margin-left: 4px;
+  color: var(--darkText);
+`;
+
 const DayCell = (props) => {
   const { 
     day, 
     cellId,
     boardId, 
     currentCell, 
+    countriesData,
     dragOverHandler, 
     dropCardHandler, 
     failFetchCallback,
@@ -74,21 +117,46 @@ const DayCell = (props) => {
     ...restProps
   } = props;
 
-    return (
+  const [isShowHolidays, setIsShowHolidays] = useState(false);
+
+  const showHolidaysHandler = () => {
+    setIsShowHolidays(!isShowHolidays);
+  };
+
+  return (
     <Cell
       {...restProps}
       onDragOver={(e) => dragOverHandler(e)}
       onDrop={(e) => dropCardHandler(e, cellId)}
     >
-      <DateWrapper>
-        <span>{day}</span>
-        {currentCell?.items.length && (
-          <CardsCount>
-            {currentCell.items.length}
-            {currentCell.items.length > 1 ? ' cards' : ' card'}
-          </CardsCount>
-        )}
-      </DateWrapper>
+      <TopWrapper>
+        <DateWrapper>
+          <span>{day}</span>
+          {currentCell?.items.length ? 
+            (<CardsCount>
+              {currentCell.items.length}
+              {currentCell.items.length > 1 ? ' cards' : ' card'}
+            </CardsCount>) 
+            : null
+          }
+        </DateWrapper>
+        {countriesData?.length ?
+          (<HolidayShower
+          onMouseOver={showHolidaysHandler}
+          >holidays
+            {isShowHolidays ?
+                <HolidayModal>
+                  {countriesData.map(country => 
+                    (<li key={countriesData.indexOf(country)}>
+                      <HolidayCountry>{country.name}</HolidayCountry>
+                      <HolidayName>{country.localName}</HolidayName>
+                    </li>))}
+                </HolidayModal>
+                : null
+              } 
+          </HolidayShower>)
+        : null}
+      </TopWrapper>
       <CardsList>
         {currentCell && currentCell.items.length ? (
           <>

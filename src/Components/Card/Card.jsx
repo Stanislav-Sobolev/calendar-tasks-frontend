@@ -141,7 +141,14 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
   const [originalColors, setOriginalColors] = useState(card.colors);
   const [isEditing, setEditing] = useState(false);
 
-  const classNamesToStyle = [CardContainer.className, StyledCardDescription.className, StyledCardTitle.className, IconWrapper.className, Edit.className, Delete.className];
+  const classNamesToStyle = [
+    CardContainer.className, 
+    StyledCardDescription.className, 
+    StyledCardTitle.className, 
+    IconWrapper.className, 
+    Edit.className, 
+    Delete.className
+  ];
   const elementRef = useRef(null);
 
   const dragStartHandler = (cell) => {
@@ -160,7 +167,7 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
     const target = e.target;
 
     
-    if (classNamesToStyle.includes(target.className) && elementRef.current) {
+  if (classNamesToStyle.includes(target.className) && elementRef.current) {
       setHoveredCard(card);
       elementRef.current.style.boxShadow = '0 5px 5px rgba(0, 0, 0, 0.2)';
     }
@@ -183,7 +190,6 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
     if (title && description) {
       setBoardData(board => {
         if (board) {
-          
           const cell = board.cellsData.find((col) => col.id === cellId);
           
           if (cell) {

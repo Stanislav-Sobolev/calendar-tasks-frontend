@@ -60,3 +60,28 @@ export const deleteCard = async (boardId, cellId, cardId, failCallback) => {
     failCallback && failCallback();
   }
 };
+
+export const nextPublicHolidaysWorldwide = async (failCallback) => {
+  try {
+    const res = await axios.get('https://date.nager.at/api/v3/NextPublicHolidaysWorldwide');
+
+    const holidaysData = res.data;
+    
+    return holidaysData;
+  } catch (error) {
+    failCallback && failCallback();
+  }
+};
+
+export const availableCountries = async (failCallback) => {
+  try {
+    const res = await axios.get('https://date.nager.at/api/v3/AvailableCountries');
+
+    const countriesData = res.data;
+    
+    return countriesData;
+  } catch (error) {
+    failCallback && failCallback();
+  }
+};
+
