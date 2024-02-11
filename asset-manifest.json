@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/calendar-tasks-frontend/static/css/main.a3c58e65.css",
+    "main.js": "/calendar-tasks-frontend/static/js/main.f22f97ec.js",
+    "index.html": "/calendar-tasks-frontend/index.html",
+    "main.a3c58e65.css.map": "/calendar-tasks-frontend/static/css/main.a3c58e65.css.map",
+    "main.f22f97ec.js.map": "/calendar-tasks-frontend/static/js/main.f22f97ec.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.a3c58e65.css",
+    "static/js/main.f22f97ec.js"
+  ]
+}
