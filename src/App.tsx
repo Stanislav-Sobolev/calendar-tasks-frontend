@@ -6,6 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getBoardById, nextPublicHolidaysWorldwide, availableCountries } from './helpers/fetchers';
 
+import { IBoard, IHoliday, ICountry } from './Interfaces';
 import { Calendar } from './Components/Calendar/Calendar';
 
 const AppContainer = styled.div`
@@ -30,13 +31,13 @@ const StyledInput = styled.input`
   padding: 6px;
 `;
 
-const CheckboxLabel = styled.label`
+const CheckboxLabel = styled.label<{ color: string }>`
   display: inline-block;
   width: 20px;
   height: 20px;
   margin-right: 6px;
   cursor: pointer;
-  ${({ color }) => `background-color: ${color};`}
+  background-color: ${({ color }) => color};
 `;
 
 const FilterColorWrapper = styled.div`
@@ -76,16 +77,17 @@ const SecondaryButton = styled.label`
 `;
 
 export const App = () => {
-  const [searchTerm, setSearchTerm] = useState('1');
-  const [holidays, setHolidays] = useState(null);
-  const [countries, setCountries] = useState(null);
-  const [fetchedBoard, setFetchedBoard] = useState(null);
-  const [filteredBoard, setFilteredBoard] = useState(null);
-  const [filteredColors, setFilteredColors] = useState(['red', 'green', 'blue']);
-  const [filterText, setFilterText] = useState('');
+  const [searchTerm, setSearchTerm] = useState<string>('1');
+  const [holidays, setHolidays] = useState<IHoliday[] | null>(null);
+  const [countries, setCountries] = useState<ICountry[] | null>(null);
+  const [fetchedBoard, setFetchedBoard] = useState<IBoard | null>(null);
+  const [filteredBoard, setFilteredBoard] = useState<IBoard | null>(null);
+  const [filteredColors, setFilteredColors] = useState<string[]>(['red', 'green', 'blue']);
+  const [filterText, setFilterText] = useState<string>('');
+
   
   useEffect(() => {
-    fetchBoard('1');
+    fetchBoard(searchTerm);
     fetchHolidays();
   }, []);
 
@@ -115,7 +117,7 @@ export const App = () => {
     }
   }, [filterText, filteredColors, fetchedBoard]);
 
-  const handleFilterCheckboxChange = (color) => {
+  const handleFilterCheckboxChange = (color: string) => {
     if (filteredColors.includes(color)) {
       setFilteredColors(filteredColors.filter((selectedColor) => selectedColor !== color));
     } else {
@@ -123,7 +125,7 @@ export const App = () => {
     }
   };
 
-  const fetchBoard = async (defaultBoardId) => {
+  const fetchBoard = async (defaultBoardId: string) => {
     try {
       const boardId = defaultBoardId ?? searchTerm;
       
@@ -132,8 +134,12 @@ export const App = () => {
       if (resBoard) {
         setFetchedBoard(resBoard);
       }
-    } catch (error) {
-      toast.error(error.response?.data?.message);
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error('An error occurred');
+      }
     }
   };
 
@@ -149,14 +155,18 @@ export const App = () => {
       if (resHolidays) {
         setHolidays(resHolidays);
       }
-    } catch (error) {
-      toast.error(error.response?.data?.message);
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error('An error occurred');
+      }
     }
   };
 
   const failFetchCallback = () => {
     toast.error('Sorry, try again');
-    fetchBoard();
+    fetchBoard(searchTerm);
   };
 
   const exportAsImage = () => {
@@ -165,7 +175,11 @@ export const App = () => {
     if (calendarContainer) {
       html2canvas(calendarContainer).then((canvas) => {
         canvas.toBlob((blob) => {
-          saveAs(blob, 'calendar.png');
+          if (blob) {
+            saveAs(blob, 'calendar.png');
+          } else {
+            console.error('Error creating image blob.');
+          }
         });
       });
     }
@@ -177,14 +191,14 @@ export const App = () => {
     saveAs(blob, 'calendar.json');
   };
 
-  const importCalendar = (event) => {
-    const file = event.target.files[0];
+  const importCalendar = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
 
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const importedData = JSON.parse(e.target.result);
+          const importedData = JSON.parse(e.target?.result as string);
           setFetchedBoard(importedData);
         } catch (error) {
           console.error('Error parsing JSON:', error);
@@ -244,14 +258,15 @@ export const App = () => {
         <SecondaryButton onClick={exportCalendar}>Export Calendar</SecondaryButton>
         <SecondaryButton onClick={exportAsImage}>Export as Image</SecondaryButton>
       </BtnWrapper>
-      {filteredBoard && 
-      <Calendar 
-        boardData={filteredBoard}
-        countries={countries}
-        holidays={holidays}
-        setBoardData={setFetchedBoard}
-        failFetchCallback={failFetchCallback}
-      />}
+      {filteredBoard && countries && holidays ?
+        <Calendar 
+          boardData={filteredBoard}
+          countries={countries}
+          holidays={holidays}
+          setBoardData={setFetchedBoard}
+          failFetchCallback={failFetchCallback}
+        />
+      : null}
     </AppContainer>
   );
 };

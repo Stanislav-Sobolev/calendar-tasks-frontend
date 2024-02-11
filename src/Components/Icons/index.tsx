@@ -1,4 +1,8 @@
-export const Edit = (props) => (
+type Props = {
+  className?: string;
+};
+
+export const Edit = (props: Props) => (
 <svg 
   className={props.className}
   width="16px" 
@@ -11,7 +15,7 @@ export const Edit = (props) => (
 </svg>
 );
 
-export const Delete = (props) => (
+export const Delete = (props: Props) => (
   <svg 
     className={props.className}
     width="16px" 
@@ -24,7 +28,7 @@ export const Delete = (props) => (
   </svg>
   );
 
-  export const Ok = (props) => (
+  export const Ok = (props: Props) => (
     <svg 
       className={props.className}
       width="24px" 
@@ -42,7 +46,7 @@ export const Delete = (props) => (
       </svg>
     );
 
-  export const Cross = (props) => (
+  export const Cross = (props: Props) => (
     <svg 
       className={props.className}
       width="24px" 
@@ -55,7 +59,7 @@ export const Delete = (props) => (
   </svg>
     );
 
-  export const Plus = (props) => (
+  export const Plus = (props: Props) => (
     <svg 
       className={props.className}
       width="26px" 

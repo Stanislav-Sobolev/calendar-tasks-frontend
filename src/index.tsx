@@ -4,11 +4,9 @@ import './index.css';
 import './assets/styles/colorVars.css';
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root')
+  document.getElementById('root') as HTMLElement
 );
 
 root.render(
-  <>
-    <App/>
-  </>
+  <App/>
 );

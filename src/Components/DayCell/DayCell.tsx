@@ -1,9 +1,10 @@
-import {useState} from 'react';
+import {useState, Dispatch, SetStateAction} from 'react';
 import styled from 'styled-components';
 import { Card } from '../Card/Card';
 import { Plus as PlusIcon } from '../Icons';
+import { ICell, IHoliday, IBoard, ICard } from '../../Interfaces';
 
-const Cell = styled.div`
+const Cell = styled.div<{ $isOutsideMonth: boolean }>`
   width: 100%;
   height: 130px;
   display: flex;
@@ -12,7 +13,7 @@ const Cell = styled.div`
   padding: 8px;
   border: 1px solid #ccc;
   overflow-y: auto;
-  background-color: ${(props) => (props.$isOutsideMonth ? '#f5f5f5' : 'white')};
+  background-color: ${({ $isOutsideMonth }) => ($isOutsideMonth ? '#f5f5f5' : 'white')};
 `;
 
 const TopWrapper = styled.div`
@@ -99,7 +100,24 @@ const HolidayName = styled.ul`
   color: var(--darkText);
 `;
 
-const DayCell = (props) => {
+type Props = {
+  day: string;
+  cellId: string;
+  boardId: string;
+  currentCell: ICell | undefined;
+  countriesData: IHoliday[] | undefined;
+  dragOverHandler: (e: React.DragEvent<HTMLDivElement>) => void;
+  dropCardHandler: (e: React.DragEvent<HTMLDivElement>, cellId: string) => void;
+  failFetchCallback: () => void;
+  setCurrentCell: Dispatch<SetStateAction<ICell | null>>;
+  setCurrentCard: Dispatch<SetStateAction<ICard | null>>;
+  setHoveredCard: Dispatch<SetStateAction<ICard | null>>;
+  setBoardData: Dispatch<SetStateAction<IBoard | null>>;
+  addCardHandler: (cellId: string) => void;
+  $isOutsideMonth: boolean;
+};
+
+const DayCell = (props: Props) => {
   const { 
     day, 
     cellId,
@@ -146,7 +164,7 @@ const DayCell = (props) => {
           >holidays
             {isShowHolidays ?
                 <HolidayModal>
-                  {countriesData.map(country => 
+                  {countriesData.map((country: IHoliday) => 
                     (<li key={countriesData.indexOf(country)}>
                       <HolidayCountry>{country.name}</HolidayCountry>
                       <HolidayName>{country.localName}</HolidayName>
@@ -160,7 +178,7 @@ const DayCell = (props) => {
       <CardsList>
         {currentCell && currentCell.items.length ? (
           <>
-            {currentCell.items.map((item) => (
+            {currentCell.items.map((item: ICard) => (
               <Card
                 key={item.id}
                 card={item}

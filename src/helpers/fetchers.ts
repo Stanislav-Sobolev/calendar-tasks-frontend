@@ -1,16 +1,17 @@
 import axios from "axios"
+import { ICreatedCard } from '../Interfaces';
 
 // axios.defaults.baseURL = 'https://dnd-te37.onrender.com';
 axios.defaults.baseURL = 'http://localhost:4000/';
 
-export const getBoardById = async (boardId) => {
+export const getBoardById = async (boardId: string) => {
     const res = await axios.get(`/board/${boardId}`);
     const boardData = res.data;
     
     return boardData;
 };
 
-export const createCard = async (boardId, cellId, cardData, failCallback) => {
+export const createCard = async (boardId: string, cellId: string, cardData: ICreatedCard, failCallback: ()=>void) => {
   try {
     const res = await axios.post(`/card/${boardId}/${cellId}`, cardData);
     const boardData = res.data;
@@ -21,7 +22,7 @@ export const createCard = async (boardId, cellId, cardData, failCallback) => {
   }
 };
 
-export const updateCard = async (boardId, cellId, cardId, updatedData, failCallback) => {
+export const updateCard = async (boardId: string, cellId: string, cardId: string, updatedData: ICreatedCard, failCallback: ()=>void) => {
   try {
     const res = await axios.put(`/card/${boardId}/${cellId}/${cardId}`, updatedData);
     const boardData = res.data;
@@ -33,12 +34,12 @@ export const updateCard = async (boardId, cellId, cardId, updatedData, failCallb
 };
 
 export const dndCard = async (
-    boardId, 
-    cellId, 
-    cardId,
-    toCellId, 
-    toCardIndexId,
-    failCallback
+    boardId: string, 
+    cellId: string, 
+    cardId: string,
+    toCellId: string, 
+    toCardIndexId: string,
+    failCallback: ()=>void
     ) => {
       try {
         const res = await axios.patch(`/card/${boardId}/${cellId}/${cardId}/${toCellId}/${toCardIndexId}`);
@@ -50,7 +51,7 @@ export const dndCard = async (
       }
 };
 
-export const deleteCard = async (boardId, cellId, cardId, failCallback) => {
+export const deleteCard = async (boardId: string, cellId: string, cardId: string, failCallback: ()=>void) => {
   try {
     const res = await axios.delete(`/card/${boardId}/${cellId}/${cardId}`);
     const boardData = res.data;
@@ -61,27 +62,27 @@ export const deleteCard = async (boardId, cellId, cardId, failCallback) => {
   }
 };
 
-export const nextPublicHolidaysWorldwide = async (failCallback) => {
+export const nextPublicHolidaysWorldwide = async () => {
   try {
     const res = await axios.get('https://date.nager.at/api/v3/NextPublicHolidaysWorldwide');
 
     const holidaysData = res.data;
     
     return holidaysData;
-  } catch (error) {
-    failCallback && failCallback();
+  } catch (error: any) {
+    throw Error(error.response?.data?.message)
   }
 };
 
-export const availableCountries = async (failCallback) => {
+export const availableCountries = async () => {
   try {
     const res = await axios.get('https://date.nager.at/api/v3/AvailableCountries');
 
     const countriesData = res.data;
     
     return countriesData;
-  } catch (error) {
-    failCallback && failCallback();
+  } catch (error: any) {
+    throw Error(error.response?.data?.message)
   }
 };
 

@@ -1,8 +1,9 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, Dispatch, SetStateAction, DragEvent } from 'react';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
 
 import { Edit as EditIcom, Delete as DeleteIcon, Ok as OkIcon, Cross as CrosIcon } from '../Icons';
+import { ICard, ICell, IBoard } from '../../Interfaces';
 import { deleteCard, updateCard } from '../../helpers/fetchers';
 
 const StyledMarkerList = styled.ul`
@@ -129,7 +130,28 @@ const StyledCardDescription = styled.span`
   padding: 4px;
 `;
 
-export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, setCurrentCard, setHoveredCard, setBoardData }) => {
+type Props = {
+  card: ICard;
+  cell: ICell;
+  boardId: string;
+  failFetchCallback: () => void;
+  setCurrentCell: Dispatch<SetStateAction<ICell | null>>;
+  setCurrentCard: Dispatch<SetStateAction<ICard | null>>;
+  setHoveredCard: Dispatch<SetStateAction<ICard | null>>;
+  setBoardData: Dispatch<SetStateAction<IBoard | null>>;
+};
+
+export const Card = (props: Props) => {
+  const { 
+    card, 
+    cell, 
+    boardId, 
+    failFetchCallback, 
+    setCurrentCell, 
+    setCurrentCard, 
+    setHoveredCard, 
+    setBoardData
+  } = props;
   const { id: cardId } = card;
   const { id: cellId } = cell;
 
@@ -141,17 +163,18 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
   const [originalColors, setOriginalColors] = useState(card.colors);
   const [isEditing, setEditing] = useState(false);
 
-  const classNamesToStyle = [
-    CardContainer.className, 
-    StyledCardDescription.className, 
-    StyledCardTitle.className, 
-    IconWrapper.className, 
-    Edit.className, 
-    Delete.className
-  ];
-  const elementRef = useRef(null);
+ const classNamesToStyle = [
+  CardContainer.toString(),
+  StyledCardDescription.toString(),
+  StyledCardTitle.toString(),
+  IconWrapper.toString(),
+  Edit.toString(),
+  Delete.toString()
+];
 
-  const dragStartHandler = (cell) => {
+  const elementRef = useRef<HTMLLIElement | null>(null);
+
+  const dragStartHandler = (cell: ICell) => {
     setCurrentCell(cell);
     setCurrentCard(card);
   }
@@ -162,11 +185,10 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
     }
   };
 
-  const dragOverHandler = (e) => {
+  const dragOverHandler = (e: DragEvent<HTMLLIElement>) => {
     e.preventDefault();
-    const target = e.target;
-
-    
+    const target = e.target as HTMLLIElement;
+    console.log(classNamesToStyle)
   if (classNamesToStyle.includes(target.className) && elementRef.current) {
       setHoveredCard(card);
       elementRef.current.style.boxShadow = '0 5px 5px rgba(0, 0, 0, 0.2)';
@@ -240,7 +262,7 @@ export const Card = ({ card, cell, boardId, failFetchCallback, setCurrentCell, s
     deleteCard(boardId, cellId, cardId, failFetchCallback);
   }
 
-  const handleCheckboxChange = (color) => {
+  const handleCheckboxChange = (color: string) => {
     if (colors.includes(color)) {
       setColors(colors.filter((selectedColor) => selectedColor !== color));
     } else {

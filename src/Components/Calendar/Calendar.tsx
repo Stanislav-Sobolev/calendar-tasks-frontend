@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { 
+  useState, 
+  useEffect, 
+  useRef,
+  Dispatch, 
+  SetStateAction 
+} from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import DayCell from '../DayCell/DayCell';
@@ -6,6 +12,7 @@ import { toast } from 'react-toastify';
 import cardEmptyTemplate from '../../assets/json/cardEmptyTemplate.json';
 import { createCard, dndCard } from '../../helpers/fetchers';
 import { Ok as OkIcon, Cross as CrosIcon } from '../Icons';
+import { IBoard, ICountry, IHoliday, ICell, ICard } from '../../Interfaces';
 
 const CalendarContainer = styled.div`
   display: grid;
@@ -109,23 +116,38 @@ const StyledCalendarTitle = styled.span`
   color: var(--accent);
 `;
 
-export const Calendar = ({boardData, countries, holidays, failFetchCallback, setBoardData}) => {
+type Props = {
+  boardData: IBoard;
+  countries: ICountry[];
+  holidays: IHoliday[];
+  failFetchCallback: () => void;
+  setBoardData: Dispatch<SetStateAction<IBoard | null>>;
+};
+
+export const Calendar = (props: Props) => {
+  const {
+    boardData, 
+    countries, 
+    holidays, 
+    failFetchCallback, 
+    setBoardData
+  } = props;
   const { id: boardId, cellsData } = boardData;
 
-  const [days, setDays] = useState([]);
-  const [currentCell, setCurrentCell] = useState(null);
-  const [currentCard, setCurrentCard] = useState(null);
-  const [hoveredCard, setHoveredCard] = useState(null);
-  const [activeCellId, setActiveCellId] = useState(null);
-  const [isShowModal, setIsShowModal] = useState(false);
-  const [description, setDescription] = useState('');
-  const [title, setTitle] = useState('');
-  const [colors, setColors] = useState([]);
+  const [days, setDays] = useState<JSX.Element[]>([]);
+  const [currentCell, setCurrentCell] = useState<ICell | null>(null);
+  const [currentCard, setCurrentCard] = useState<ICard | null>(null);
+  const [hoveredCard, setHoveredCard] = useState<ICard | null>(null);
+  const [activeCellId, setActiveCellId] = useState<string | null>(null);
+  const [isShowModal, setIsShowModal] = useState<boolean>(false);
+  const [description, setDescription] = useState<string>('');
+  const [title, setTitle] = useState<string>('');
+  const [colors, setColors] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState(moment());
 
-  const refCurrentCard = useRef();
-  const refCurrentCell  = useRef();
-  const refHoveredCard  = useRef();
+  const refCurrentCard = useRef<ICard | null>();
+  const refCurrentCell  = useRef<ICell | null>();
+  const refHoveredCard  = useRef<ICard | null>();
   refCurrentCard.current = currentCard;
   refCurrentCell.current = currentCell;
   refHoveredCard.current = hoveredCard;
@@ -139,12 +161,21 @@ export const Calendar = ({boardData, countries, holidays, failFetchCallback, set
 
       const countedDays = [];
       let currentDate = startDate;
-      
-      const cellsRange = cellsData.filter(el => moment(el.id).isSameOrAfter(startDate.unix()) && moment(el.id).isSameOrBefore(endDate.unix()))
+            
+      console.log(endDate.unix())
+      const cellsRange = cellsData.filter(el => {
+
+        // const qq = moment(new Date());
+        // const qq2 = moment(Date());
+        // const ww = startDate.unix();
+        // const ee= moment(el.id).isSameOrAfter(startDate.unix());
+        // const rr = moment(el.id).isSameOrBefore(endDate.unix());
+        return moment(new Date()).isSameOrAfter(startDate.unix()) && moment(new Date()).isSameOrBefore(endDate.unix())
+      })
       
       while (currentDate.isSameOrBefore(endDate)) {
         const isOutsideMonth = !currentDate.isBetween(startOfMonth, endOfMonth, null, '[]');
-        const currentCellData = cellsRange.find(el => moment.unix(el.id).format('YMD') === currentDate.format('YMD'));
+        const currentCellData = cellsRange.find(el => moment.unix(Number(el.id)).format('YYYY-MM-DD') === currentDate.format('YYYY-MM-DD'));
         const currentHolidays = holidays.filter(el => el.date === moment(currentDate).format('YYYY-MM-DD'));
         let countriesData;
 
@@ -153,7 +184,7 @@ export const Calendar = ({boardData, countries, holidays, failFetchCallback, set
 
             const countryFound = countries.find(country => el.countryCode === country.countryCode);
 
-            return {...el, name: countryFound?.name}
+            return {...el, name: countryFound?.name ?? ''}
           });
         }
 
@@ -161,7 +192,7 @@ export const Calendar = ({boardData, countries, holidays, failFetchCallback, set
           <DayCell
             key={currentDate.format('YYYY-MM-DD')}
             day={currentDate.format('D')}
-            cellId={currentDate.unix()}
+            cellId={currentDate.unix().toString()}
             $isOutsideMonth={isOutsideMonth}
             boardId={boardId}
             currentCell={currentCellData}
@@ -188,11 +219,11 @@ export const Calendar = ({boardData, countries, holidays, failFetchCallback, set
     moment.locale('en'); // Set the desired default locale
   }, []);
 
-  const dragOverHandler = (e) => {
+  const dragOverHandler = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
   };
 
-  const dropCardHandler = async (e, cellId) => {
+  const dropCardHandler = async (e: React.DragEvent<HTMLDivElement>, cellId: string) => {
     e.preventDefault();
     
     if (refCurrentCard.current && refCurrentCell.current && cellsData) {
@@ -205,39 +236,38 @@ export const Calendar = ({boardData, countries, holidays, failFetchCallback, set
       }
 
       setBoardData((board) => {
-        if (board) {
-          let cellFrom = board.cellsData.find((col) => col.id === refCurrentCell.current.id);
+        if (board && refCurrentCard.current) {
+          let cellFrom: ICell | undefined = board.cellsData.find((col) => col.id === refCurrentCell.current?.id);
           let cellTo = board.cellsData.find((col) => col.id === cellId);
 
           if (!cellTo) {
-            const newCell = {"title": "day", "items": [], id: cellId}
-            board.cellsData.push(newCell)
+            const newCell = { "title": "day", "items": [], id: cellId };
+            board.cellsData.push(newCell);
             cellTo = board.cellsData.find((col) => col.id === cellId);
           }
-          
+
           if (cellFrom && cellTo) {
             const currentCardIndex = cellFrom.items.indexOf(refCurrentCard.current);
             cellFrom.items.splice(currentCardIndex, 1);
-            cellFrom.items = [...cellFrom.items]
-            
+            cellFrom.items = [...cellFrom.items];
+
             cellTo.items.splice(dropIndex + 1, 0, refCurrentCard.current);
-            cellTo.items = [...cellTo.items]
-            
-            return {...board};
+            cellTo.items = [...cellTo.items];
+
+            return { ...board };
           }
         }
         return board;
       });
-
-      
-      dndCard(boardId, refCurrentCell.current.id, refCurrentCard.current.id, cellId, dropIndex + 1, failFetchCallback);
+     
+      dndCard(boardId, refCurrentCell.current.id, refCurrentCard.current.id, cellId, (dropIndex + 1).toString(), failFetchCallback);
     }
 
-    const target = e.target;
+    const target = e.target as HTMLDivElement;
     target.style.boxShadow = 'none';
   };
 
-  const addCardHandler = (cellId) => {
+  const addCardHandler = (cellId: string) => {
     setActiveCellId(cellId);
     setIsShowModal(true);
   }
@@ -250,7 +280,7 @@ export const Calendar = ({boardData, countries, holidays, failFetchCallback, set
   }
 
   const saveUpdateHandler = () => {
-    const createdCard = { ...cardEmptyTemplate, id: Date.now(), title, description, colors };
+    const createdCard = { ...cardEmptyTemplate, id: moment().valueOf().toString(), title, description, colors };
 
     if (activeCellId && title && description) {
       setBoardData((board) => {
@@ -279,7 +309,7 @@ export const Calendar = ({boardData, countries, holidays, failFetchCallback, set
     }
   };
 
-  const handleCheckboxChange = (color) => {
+  const handleCheckboxChange = (color: string) => {
     if (colors.includes(color)) {
       setColors(colors.filter((selectedColor) => selectedColor !== color));
     } else {
