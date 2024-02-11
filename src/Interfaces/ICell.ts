@@ -1,7 +1,7 @@
 import {ICard} from './ICard'
 
 export interface ICell { 
-    id: string; 
+    id: number; 
     title: string; 
     items: ICard[]; 
 }

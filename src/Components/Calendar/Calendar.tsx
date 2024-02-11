@@ -138,7 +138,7 @@ export const Calendar = (props: Props) => {
   const [currentCell, setCurrentCell] = useState<ICell | null>(null);
   const [currentCard, setCurrentCard] = useState<ICard | null>(null);
   const [hoveredCard, setHoveredCard] = useState<ICard | null>(null);
-  const [activeCellId, setActiveCellId] = useState<string | null>(null);
+  const [activeCellId, setActiveCellId] = useState<number | null>(null);
   const [isShowModal, setIsShowModal] = useState<boolean>(false);
   const [description, setDescription] = useState<string>('');
   const [title, setTitle] = useState<string>('');
@@ -162,15 +162,9 @@ export const Calendar = (props: Props) => {
       const countedDays = [];
       let currentDate = startDate;
             
-      console.log(endDate.unix())
       const cellsRange = cellsData.filter(el => {
 
-        // const qq = moment(new Date());
-        // const qq2 = moment(Date());
-        // const ww = startDate.unix();
-        // const ee= moment(el.id).isSameOrAfter(startDate.unix());
-        // const rr = moment(el.id).isSameOrBefore(endDate.unix());
-        return moment(new Date()).isSameOrAfter(startDate.unix()) && moment(new Date()).isSameOrBefore(endDate.unix())
+        return moment.unix(Number(el.id)).isSameOrAfter(moment.unix(startDate.unix())) && moment.unix(Number(el.id)).isSameOrBefore(moment.unix(endDate.unix()));
       })
       
       while (currentDate.isSameOrBefore(endDate)) {
@@ -192,7 +186,7 @@ export const Calendar = (props: Props) => {
           <DayCell
             key={currentDate.format('YYYY-MM-DD')}
             day={currentDate.format('D')}
-            cellId={currentDate.unix().toString()}
+            cellId={currentDate.unix()}
             $isOutsideMonth={isOutsideMonth}
             boardId={boardId}
             currentCell={currentCellData}
@@ -223,7 +217,7 @@ export const Calendar = (props: Props) => {
     e.preventDefault();
   };
 
-  const dropCardHandler = async (e: React.DragEvent<HTMLDivElement>, cellId: string) => {
+  const dropCardHandler = async (e: React.DragEvent<HTMLDivElement>, cellId: number) => {
     e.preventDefault();
     
     if (refCurrentCard.current && refCurrentCell.current && cellsData) {
@@ -260,14 +254,14 @@ export const Calendar = (props: Props) => {
         return board;
       });
      
-      dndCard(boardId, refCurrentCell.current.id, refCurrentCard.current.id, cellId, (dropIndex + 1).toString(), failFetchCallback);
+      dndCard(boardId, refCurrentCell.current.id, refCurrentCard.current.id, cellId, dropIndex + 1, failFetchCallback);
     }
 
     const target = e.target as HTMLDivElement;
     target.style.boxShadow = 'none';
   };
 
-  const addCardHandler = (cellId: string) => {
+  const addCardHandler = (cellId: number) => {
     setActiveCellId(cellId);
     setIsShowModal(true);
   }
@@ -280,7 +274,7 @@ export const Calendar = (props: Props) => {
   }
 
   const saveUpdateHandler = () => {
-    const createdCard = { ...cardEmptyTemplate, id: moment().valueOf().toString(), title, description, colors };
+    const createdCard = { ...cardEmptyTemplate, id: Date.now(), title, description, colors };
 
     if (activeCellId && title && description) {
       setBoardData((board) => {

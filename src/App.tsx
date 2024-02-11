@@ -82,7 +82,7 @@ export const App = () => {
   const [countries, setCountries] = useState<ICountry[] | null>(null);
   const [fetchedBoard, setFetchedBoard] = useState<IBoard | null>(null);
   const [filteredBoard, setFilteredBoard] = useState<IBoard | null>(null);
-  const [filteredColors, setFilteredColors] = useState<string[]>(['red', 'green', 'blue']);
+  const [filteredColors, setFilteredColors] = useState<string[]>([]);
   const [filterText, setFilterText] = useState<string>('');
 
   
@@ -104,7 +104,11 @@ export const App = () => {
           const updatedCell = cell.items.filter(card => {
             const isTextIncluded = card.title.toLowerCase().includes(filterText.toLowerCase());
             const isDescriptionIncluded = card.description.toLowerCase().includes(filterText.toLowerCase());
-            const isFIlteredColorsIncluded = filteredColors.some(str1 => card.colors.some(str2 => str1 === str2));
+            
+            let isFIlteredColorsIncluded = true;
+            if (filteredColors.length) {
+              isFIlteredColorsIncluded = filteredColors.some(str1 => card.colors.some(str2 => str1 === str2));
+            }
 
             return (isTextIncluded && isFIlteredColorsIncluded) || (isDescriptionIncluded && isFIlteredColorsIncluded)
           });          

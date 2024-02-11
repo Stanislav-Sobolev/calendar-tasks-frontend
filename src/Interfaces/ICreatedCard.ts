@@ -1,6 +1,6 @@
 
 export interface ICreatedCard { 
-    id: string;
+    id: number;
     title: string;
     description: string; 
     colors: string[];

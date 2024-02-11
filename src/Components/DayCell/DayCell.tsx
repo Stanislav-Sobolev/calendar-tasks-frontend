@@ -102,18 +102,18 @@ const HolidayName = styled.ul`
 
 type Props = {
   day: string;
-  cellId: string;
+  cellId: number;
   boardId: string;
   currentCell: ICell | undefined;
   countriesData: IHoliday[] | undefined;
   dragOverHandler: (e: React.DragEvent<HTMLDivElement>) => void;
-  dropCardHandler: (e: React.DragEvent<HTMLDivElement>, cellId: string) => void;
+  dropCardHandler: (e: React.DragEvent<HTMLDivElement>, cellId: number) => void;
   failFetchCallback: () => void;
   setCurrentCell: Dispatch<SetStateAction<ICell | null>>;
   setCurrentCard: Dispatch<SetStateAction<ICard | null>>;
   setHoveredCard: Dispatch<SetStateAction<ICard | null>>;
   setBoardData: Dispatch<SetStateAction<IBoard | null>>;
-  addCardHandler: (cellId: string) => void;
+  addCardHandler: (cellId: number) => void;
   $isOutsideMonth: boolean;
 };
 

@@ -188,7 +188,7 @@ export const Card = (props: Props) => {
   const dragOverHandler = (e: DragEvent<HTMLLIElement>) => {
     e.preventDefault();
     const target = e.target as HTMLLIElement;
-    console.log(classNamesToStyle)
+    
   if (classNamesToStyle.includes(target.className) && elementRef.current) {
       setHoveredCard(card);
       elementRef.current.style.boxShadow = '0 5px 5px rgba(0, 0, 0, 0.2)';

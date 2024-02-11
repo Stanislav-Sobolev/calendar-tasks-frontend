@@ -11,7 +11,7 @@ export const getBoardById = async (boardId: string) => {
     return boardData;
 };
 
-export const createCard = async (boardId: string, cellId: string, cardData: ICreatedCard, failCallback: ()=>void) => {
+export const createCard = async (boardId: string, cellId: number, cardData: ICreatedCard, failCallback: ()=>void) => {
   try {
     const res = await axios.post(`/card/${boardId}/${cellId}`, cardData);
     const boardData = res.data;
@@ -22,7 +22,7 @@ export const createCard = async (boardId: string, cellId: string, cardData: ICre
   }
 };
 
-export const updateCard = async (boardId: string, cellId: string, cardId: string, updatedData: ICreatedCard, failCallback: ()=>void) => {
+export const updateCard = async (boardId: string, cellId: number, cardId: number, updatedData: ICreatedCard, failCallback: ()=>void) => {
   try {
     const res = await axios.put(`/card/${boardId}/${cellId}/${cardId}`, updatedData);
     const boardData = res.data;
@@ -35,10 +35,10 @@ export const updateCard = async (boardId: string, cellId: string, cardId: string
 
 export const dndCard = async (
     boardId: string, 
-    cellId: string, 
-    cardId: string,
-    toCellId: string, 
-    toCardIndexId: string,
+    cellId: number, 
+    cardId: number,
+    toCellId: number, 
+    toCardIndexId: number,
     failCallback: ()=>void
     ) => {
       try {
@@ -51,7 +51,7 @@ export const dndCard = async (
       }
 };
 
-export const deleteCard = async (boardId: string, cellId: string, cardId: string, failCallback: ()=>void) => {
+export const deleteCard = async (boardId: string, cellId: number, cardId: number, failCallback: ()=>void) => {
   try {
     const res = await axios.delete(`/card/${boardId}/${cellId}/${cardId}`);
     const boardData = res.data;
