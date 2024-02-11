@@ -1,8 +1,8 @@
 import axios from "axios"
 import { ICreatedCard } from '../Interfaces';
 
-// axios.defaults.baseURL = 'https://dnd-te37.onrender.com';
-axios.defaults.baseURL = 'http://localhost:4000/';
+axios.defaults.baseURL = 'https://calendar-tasks-backend.vercel.app';
+// axios.defaults.baseURL = 'http://localhost:4000/';
 
 export const getBoardById = async (boardId: string) => {
     const res = await axios.get(`/board/${boardId}`);
