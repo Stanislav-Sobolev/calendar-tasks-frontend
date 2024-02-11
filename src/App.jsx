@@ -6,7 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getBoardById, nextPublicHolidaysWorldwide, availableCountries } from './helpers/fetchers';
 
-import Calendar from './Components/Calendar/Calendar';
+import { Calendar } from './Components/Calendar/Calendar';
 
 const AppContainer = styled.div`
   width: 100%;

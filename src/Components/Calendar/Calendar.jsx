@@ -106,10 +106,10 @@ const StyledCalendarTitle = styled.span`
   font-size: 22px;
   font-weight: 600;
   justify-content: center;
-  color: var(--accent)
+  color: var(--accent);
 `;
 
-const Calendar = ({boardData, countries, holidays, failFetchCallback, setBoardData}) => {
+export const Calendar = ({boardData, countries, holidays, failFetchCallback, setBoardData}) => {
   const { id: boardId, cellsData } = boardData;
 
   const [days, setDays] = useState([]);
@@ -364,5 +364,3 @@ const renderModal = () => (
     </div>
   );
 };
-
-export default Calendar;
